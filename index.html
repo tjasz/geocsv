@@ -22,13 +22,13 @@
 		}
 		.leaflet-container {
       float: left;
-			height: 900px;
+			height: 800px;
 			width: 50%;
 			max-height: 70%;
 		}
     #preview {
       float: left;
-			height: 900px;
+			height: 800px;
 			width: 50%;
 			max-height: 70%;
     }
@@ -51,7 +51,6 @@
   <div id="map"></div>
   <div id="preview">
     <iframe id="preview-frame" src=""></iframe>
-    <!-- https://www.mountainproject.com/area/105739322/city-of-rocks -->
   </div>
 </div>
 <div id="table">
@@ -64,6 +63,14 @@
 
 
 <script>
+
+var live = false;
+
+function* filter(data, predicate = function(item) { return true; }) {
+  for (let item of data) {
+    if (predicate(item)) yield item;
+  }
+}
 
 function removeAllChildNodes(parent) {
     while (parent.firstChild) {
@@ -117,30 +124,36 @@ function displayData(table, data, header, map, filter) {
       }
       // set row onclick listener
       (function(row) { tr.onclick = function(){
-        map.flyTo([row["Area Latitude"], row["Area Longitude"]], 18);
+        map.flyTo(row.marker);
         document.getElementById("preview-frame").setAttribute('src', row.URL);
       }; })(row);
     }
   }
 }
 
-function addToMap(map, data, filter) {
-  var group = L.featureGroup().addTo(map);
-  // For each row in data, create a marker and add it to the map
+// associate a Leaflet marker with a data row/object
+function addMarker(item) {
+  // build the marker
+  var title = item["Route Type"] + " " + item.Rating + " " + item.Pitches + "p " + item["Avg Stars"] + "* " + item.Route;
+  var popup = "<div style=\"width:300px; height: 300px; position:relative;\"><iframe src=\"" + item.URL + "\" style=\"position:absolute; top:0px; left:0px;  width:100%; height:100%; border: none; overflow: hidden;\"></iframe></div>";
+  var marker = L.marker([item["Area Latitude"], item["Area Longitude"]], {
+    opacity: 1,
+    title: title
+  }).bindPopup(popup);
+  // add it to the object
+  item.marker = marker;
+}
+// add markers to the CSV objects
+function addMarkers(data) {
+  // For each row in data, create a marker and add it to the row/object
   for (var i in data) {
     var row = data[i];
-    if (filter(row)) {
-      var marker = L.marker([row["Area Latitude"], row["Area Longitude"]], {
-        opacity: 1,
-        title: row["Route Type"] + " " + row.Rating + " " + row.Pitches + "p " + row["Avg Stars"] + "* " + row.Route
-      }).bindPopup("<div style=\"width:300px; height: 300px; position:relative;\"><iframe src=\"" + row.URL + "\" style=\"position:absolute; top:0px; left:0px;  width:100%; height:100%; border: none; overflow: hidden;\"></iframe></div>");
-      
-      group.addLayer(marker);
-    }
+    addMarker(row);
   }
-  map.fitBounds(group.getBounds());
 }
 
+// MapView object for managing the map view
+function MapView() {
   var outdoorLayer = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoidGphc3oiLCJhIjoiY2wxcDQ4eG1pMHZxNDNjcGM3djJ4eGphMCJ9.aH-D5oeZHZVzcWQZeeRviQ', {
 		maxZoom: 18,
 		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
@@ -161,34 +174,72 @@ function addToMap(map, data, filter) {
     "Outdoor": outdoorLayer,
     "Satellite": satelliteLayer
   };
+	this.map = L.map('map').setView([42.0809,-113.70743], 12);
+  this.markers = L.featureGroup().addTo(this.map);
+  L.control.layers(baseMaps).addTo(this.map);
+  outdoorLayer.addTo(this.map);
+}
+MapView.prototype.flyTo = function(marker) {
+  this.map.flyTo(marker.getLatLng(), 18);
+  marker.openPopup();
+};
+MapView.prototype.resetZoom = function() {
+  this.map.fitBounds(this.markers.getBounds());
+};
+MapView.prototype.clear = function() {
+  this.markers.clearLayers();
+};
+MapView.prototype.addData = function(data, predicate = function(item) { return true; }) {
+  for (let row of filter(data, predicate)) {
+    this.markers.addLayer(row.marker);
+  }
+}
+MapView.prototype.boundsPredicate = function(item) {
+  var bounds = this.map.getBounds();
+  return item["Area Latitude"] <= bounds.getNorth() &&
+         item["Area Latitude"] >= bounds.getSouth() &&
+         item["Area Longitude"] >= bounds.getWest() &&
+         item["Area Longitude"] <= bounds.getEast();
+};
 
-	var map = L.map('map').setView([42.0809,-113.70743], 12);
-  L.control.layers(baseMaps).addTo(map);
-  outdoorLayer.addTo(map);
-  
-  var table = document.getElementById("data-table");
+// The frame viewer
+function FrameView(elementId) {
+  this.frame = document.getElementById(elementId);
+  this.goHome();
+}
+FrameView.prototype.goHome = function() {
+  if (live) {
+    this.frame.setAttribute('src', "https://www.mountainproject.com/area/105739322/city-of-rocks");
+  }
+};
+FrameView.prototype.goToRoute = function(url) {
+  if (live) {
+    this.frame.setAttribute('src', url);
+  }
+};
+
+var mapview = new MapView();
+var frameview = new FrameView("preview-frame");
+var table = document.getElementById("data-table");
+var data;
 
   // Read markers data from data.csv
   $.get('city-of-rocks.csv', function(csvString) {
 
     // Use PapaParse to convert string to array of objects
     var result = Papa.parse(csvString, {header: true, dynamicTyping: true});
-    var data = result.data;
+    data = result.data;
+    // associate markers with each data row/object
+    addMarkers(data);
     
-    addToMap(map, result.data, row => true);
+    mapview.addData(data);
     
-    displayData(table, result.data, result.meta['fields'], map,
-        row => row["Area Latitude"] <= map.getBounds().getNorth() &&
-               row["Area Latitude"] >= map.getBounds().getSouth() &&
-               row["Area Longitude"] >= map.getBounds().getWest() &&
-               row["Area Longitude"] <= map.getBounds().getEast());
+    displayData(table, result.data, result.meta['fields'], mapview,
+        mapview.boundsPredicate.bind(mapview));
     
-    map.on('moveend', function(e) {
-      displayData(table, result.data, result.meta['fields'], map,
-        row => row["Area Latitude"] <= map.getBounds().getNorth() &&
-               row["Area Latitude"] >= map.getBounds().getSouth() &&
-               row["Area Longitude"] >= map.getBounds().getWest() &&
-               row["Area Longitude"] <= map.getBounds().getEast());
+    mapview.map.on('moveend', function(e) {
+      displayData(table, result.data, result.meta['fields'], mapview,
+        mapview.boundsPredicate.bind(mapview));
       });
 
   });
