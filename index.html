@@ -97,7 +97,7 @@ function formatData(data) {
   }
 }
 
-function displayData(table, data, header, filter) {
+function displayData(table, data, header, map, filter) {
   removeAllChildNodes(table);
   
   var tr = table.insertRow(0);
@@ -115,6 +115,11 @@ function displayData(table, data, header, filter) {
         var td = tr.insertCell(-1);
         td.innerHTML = formatData(row[header[j]]);
       }
+      // set row onclick listener
+      (function(row) { tr.onclick = function(){
+        map.flyTo([row["Area Latitude"], row["Area Longitude"]], 18);
+        document.getElementById("preview-frame").setAttribute('src', row.URL);
+      }; })(row);
     }
   }
 }
@@ -172,14 +177,14 @@ function addToMap(map, data, filter) {
     
     addToMap(map, result.data, row => true);
     
-    displayData(table, result.data, result.meta['fields'],
+    displayData(table, result.data, result.meta['fields'], map,
         row => row["Area Latitude"] <= map.getBounds().getNorth() &&
                row["Area Latitude"] >= map.getBounds().getSouth() &&
                row["Area Longitude"] >= map.getBounds().getWest() &&
                row["Area Longitude"] <= map.getBounds().getEast());
     
     map.on('moveend', function(e) {
-      displayData(table, result.data, result.meta['fields'],
+      displayData(table, result.data, result.meta['fields'], map,
         row => row["Area Latitude"] <= map.getBounds().getNorth() &&
                row["Area Latitude"] >= map.getBounds().getSouth() &&
                row["Area Longitude"] >= map.getBounds().getWest() &&
