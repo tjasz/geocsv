@@ -71,6 +71,32 @@ function removeAllChildNodes(parent) {
     }
 }
 
+function formatData(data) {
+  // if null, return empty string
+  if (null === data) return "";
+  // if a number, return its repr
+  if (typeof data === 'number') {
+    return data;
+  }
+  // if a valid URL, make it a link
+  try {
+    url = new URL(data);
+    return "<a href='" + data + "'>Link</a>";
+  } catch (_) {
+    // if a MP location, split
+    var location = "";
+    var hierarchy = data.split('>');
+    for (var i in hierarchy) {
+      if (hierarchy[i] === " City of Rocks ") {
+        return location;
+      }
+      if (i > 0) location += " > ";
+      location += hierarchy[i];
+    }
+    return data;
+  }
+}
+
 function displayData(table, data, header, filter) {
   removeAllChildNodes(table);
   
@@ -78,6 +104,7 @@ function displayData(table, data, header, filter) {
   for (var j in header) {
     var cell = tr.insertCell(-1);
     cell.outerHTML = "<th>" + header[j] + "</th>";
+    console.log(header[j] + " : " + typeof data[0][header[j]]);
   }
   
   for (var i in data) {
@@ -86,7 +113,7 @@ function displayData(table, data, header, filter) {
       tr = table.insertRow(-1);
       for (var j in header) {
         var td = tr.insertCell(-1);
-        td.innerHTML = row[header[j]];
+        td.innerHTML = formatData(row[header[j]]);
       }
     }
   }
@@ -143,13 +170,13 @@ function addToMap(map, data, filter) {
     var result = Papa.parse(csvString, {header: true, dynamicTyping: true});
     var data = result.data;
     
+    addToMap(map, result.data, row => true);
+    
     displayData(table, result.data, result.meta['fields'],
         row => row["Area Latitude"] <= map.getBounds().getNorth() &&
                row["Area Latitude"] >= map.getBounds().getSouth() &&
                row["Area Longitude"] >= map.getBounds().getWest() &&
                row["Area Longitude"] <= map.getBounds().getEast());
-
-    addToMap(map, result.data, row => true);
     
     map.on('moveend', function(e) {
       displayData(table, result.data, result.meta['fields'],
