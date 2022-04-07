@@ -65,6 +65,7 @@
 <script>
 
 function* filter(data, predicate = function(item) { return true; }) {
+  if (null === data) return null;
   for (let item of data) {
     if (predicate(item)) yield item;
   }
@@ -220,6 +221,7 @@ TableView.prototype.addRow = function(row) {
   }; })(row);
 }
 TableView.prototype.addRows = function(rows, predicate = function(item) { return true; }) {
+  if (null === rows) return;
   for (let row of filter(rows, predicate)) {
     this.addRow(row);
   }
@@ -243,29 +245,29 @@ function focus(row) {
 var mapview = new MapView();
 var frameview = new FrameView("preview-frame", connect=false);
 var tableview = new TableView("data-table");
+var globalPredicate = function(item) { return true; };
 var data;
 
-  // Read markers data from data.csv
-  $.get('city-of-rocks.csv', function(csvString) {
-
-    // Use PapaParse to convert string to array of objects
-    var result = Papa.parse(csvString, {header: true, dynamicTyping: true});
-    data = result.data;
-    // associate markers with each data row/object
-    addMarkers(data);
-    
-    mapview.addData(data);
-    
-    tableview.addHeader(result.meta['fields']);
-    tableview.addRows(data);
-    
-    // set mapview move listener
-    mapview.map.on('moveend', function(e) {
-      tableview.clear();
-      tableview.addRows(data, mapview.boundsPredicate.bind(mapview));
-      });
-
+// set mapview move listener
+mapview.map.on('moveend', function(e) {
+  tableview.clear();
+  tableview.addRows(filter(data, globalPredicate), mapview.boundsPredicate.bind(mapview));
   });
+
+// Read markers data from CSV, populate views
+$.get('city-of-rocks.csv', function(csvString) {
+
+  // Use PapaParse to convert string to array of objects
+  var result = Papa.parse(csvString, {header: true, dynamicTyping: true});
+  data = result.data;
+  // associate markers with each data row/object
+  addMarkers(data);
+  
+  mapview.addData(data);
+  
+  tableview.addHeader(result.meta['fields']);
+  tableview.addRows(data);
+});
 
 </script>
 
