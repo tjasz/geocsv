@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	
+	<title>MP Companion</title>
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="leaflet/leaflet.css" />
+    <script src="leaflet/leaflet.js"></script>
+
+  <!-- Load jQuery and PapaParse to read data from a CSV file -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+
+	<style>
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+		.leaflet-container {
+      float: left;
+			height: 900px;
+			width: 50%;
+			max-height: 70%;
+		}
+    #preview {
+      float: left;
+			height: 900px;
+			width: 50%;
+			max-height: 70%;
+    }
+    #preview-frame {
+      top:0px;
+      left:0px;
+      width:100%;
+      height:100%;
+      border: none;
+      overflow: hidden;
+    }
+	</style>
+
+	
+</head>
+<body>
+<h1>MP Companion</h1>
+
+<div id="top">
+  <div id="map"></div>
+  <div id="preview">
+    <iframe id="preview-frame" src=""></iframe>
+    <!-- https://www.mountainproject.com/area/105739322/city-of-rocks -->
+  </div>
+</div>
+<div id="table">
+  <table id="data-table">
+  </table>
+</div>
+
+
+
+
+
+<script>
+
+function removeAllChildNodes(parent) {
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+    }
+}
+
+function displayData(table, data, header, filter) {
+  removeAllChildNodes(table);
+  
+  var tr = table.insertRow(0);
+  for (var j in header) {
+    var cell = tr.insertCell(-1);
+    cell.outerHTML = "<th>" + header[j] + "</th>";
+  }
+  
+  for (var i in data) {
+    var row = data[i];
+    if (filter(row)) {
+      tr = table.insertRow(-1);
+      for (var j in header) {
+        var td = tr.insertCell(-1);
+        td.innerHTML = row[header[j]];
+      }
+    }
+  }
+}
+
+function addToMap(map, data, filter) {// For each row in data, create a marker and add it to the map
+  for (var i in data) {
+    var row = data[i];
+    if (filter(row)) {
+      var marker = L.marker([row["Area Latitude"], row["Area Longitude"]], {
+        opacity: 1,
+        title: row["Route Type"] + " " + row.Rating + " " + row.Pitches + "p " + row["Avg Stars"] + "* " + row.Route
+      }).bindPopup("<div style=\"width:300px; height: 300px; position:relative;\"><iframe src=\"" + row.URL + "\" style=\"position:absolute; top:0px; left:0px;  width:100%; height:100%; border: none; overflow: hidden;\"></iframe></div>");
+      
+      marker.addTo(map);
+    }
+  }
+}
+
+  var outdoorLayer = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoidGphc3oiLCJhIjoiY2wxcDQ4eG1pMHZxNDNjcGM3djJ4eGphMCJ9.aH-D5oeZHZVzcWQZeeRviQ', {
+		maxZoom: 18,
+		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+			'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+		id: 'mapbox/outdoors-v11',
+		tileSize: 512,
+		zoomOffset: -1
+	});
+  var satelliteLayer = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoidGphc3oiLCJhIjoiY2wxcDQ4eG1pMHZxNDNjcGM3djJ4eGphMCJ9.aH-D5oeZHZVzcWQZeeRviQ', {
+		maxZoom: 18,
+		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+			'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+		id: 'mapbox/satellite-v9',
+		tileSize: 512,
+		zoomOffset: -1
+	});
+  var baseMaps = {
+    "Outdoor": outdoorLayer,
+    "Satellite": satelliteLayer
+  };
+
+	var map = L.map('map').setView([42.0809,-113.70743], 12);
+  L.control.layers(baseMaps).addTo(map);
+  outdoorLayer.addTo(map);
+  
+  var table = document.getElementById("data-table");
+
+  // Read markers data from data.csv
+  $.get('city-of-rocks.csv', function(csvString) {
+
+    // Use PapaParse to convert string to array of objects
+    var result = Papa.parse(csvString, {header: true, dynamicTyping: true});
+    var data = result.data;
+    
+    displayData(table, result.data, result.meta['fields'],
+        row => row["Area Latitude"] <= map.getBounds().getNorth() &&
+               row["Area Latitude"] >= map.getBounds().getSouth() &&
+               row["Area Longitude"] >= map.getBounds().getWest() &&
+               row["Area Longitude"] <= map.getBounds().getEast());
+
+    addToMap(map, result.data, row => true);
+    
+    map.on('moveend', function(e) {
+      displayData(table, result.data, result.meta['fields'],
+        row => row["Area Latitude"] <= map.getBounds().getNorth() &&
+               row["Area Latitude"] >= map.getBounds().getSouth() &&
+               row["Area Longitude"] >= map.getBounds().getWest() &&
+               row["Area Longitude"] <= map.getBounds().getEast());
+      });
+
+  });
+
+</script>
+
+
+
+</body>
+</html>
