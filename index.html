@@ -162,6 +162,7 @@ MapView.prototype.clear = function() {
   this.markers.clearLayers();
 };
 MapView.prototype.addData = function(data, predicate = function(item) { return true; }) {
+  if (null === data) return;
   for (let row of filter(data, predicate)) {
     this.markers.addLayer(row.marker);
   }
@@ -241,11 +242,24 @@ function focus(row) {
   frameview.goToRoute(row.URL);
   tableview.highlight(row.URL);
 }
+// refresh data in all views; to be called if change to data, globalPredicate, or sorting
+function refresh() {
+  mapview.clear();
+  mapview.addData(data, globalPredicate);
+  mapview.resetZoom();
+  
+  frameview.goHome();
+  
+  tableview.clear();
+  tableview.addRows(filter(data, globalPredicate), mapview.boundsPredicate.bind(mapview));
+}
 
 var mapview = new MapView();
 var frameview = new FrameView("preview-frame", connect=false);
 var tableview = new TableView("data-table");
-var globalPredicate = function(item) { return true; };
+var globalPredicate = function(item) {
+  return true;
+  };
 var data;
 
 // set mapview move listener
@@ -263,10 +277,10 @@ $.get('city-of-rocks.csv', function(csvString) {
   // associate markers with each data row/object
   addMarkers(data);
   
-  mapview.addData(data);
+  mapview.addData(data, globalPredicate);
   
   tableview.addHeader(result.meta['fields']);
-  tableview.addRows(data);
+  tableview.addRows(filter(data, globalPredicate), mapview.boundsPredicate.bind(mapview));
 });
 
 </script>
