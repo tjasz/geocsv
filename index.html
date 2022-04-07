@@ -64,8 +64,6 @@
 
 <script>
 
-var live = false;
-
 function* filter(data, predicate = function(item) { return true; }) {
   for (let item of data) {
     if (predicate(item)) yield item;
@@ -88,7 +86,7 @@ function formatData(data) {
   // if a valid URL, make it a link
   try {
     url = new URL(data);
-    return "<a href='" + data + "'>Link</a>";
+    return "<a target='_blank' href='" + data + "'>Link</a>";
   } catch (_) {
     // if a MP location, split
     var location = "";
@@ -104,38 +102,11 @@ function formatData(data) {
   }
 }
 
-function displayData(table, data, header, map, filter) {
-  removeAllChildNodes(table);
-  
-  var tr = table.insertRow(0);
-  for (var j in header) {
-    var cell = tr.insertCell(-1);
-    cell.outerHTML = "<th>" + header[j] + "</th>";
-    console.log(header[j] + " : " + typeof data[0][header[j]]);
-  }
-  
-  for (var i in data) {
-    var row = data[i];
-    if (filter(row)) {
-      tr = table.insertRow(-1);
-      for (var j in header) {
-        var td = tr.insertCell(-1);
-        td.innerHTML = formatData(row[header[j]]);
-      }
-      // set row onclick listener
-      (function(row) { tr.onclick = function(){
-        map.flyTo(row.marker);
-        document.getElementById("preview-frame").setAttribute('src', row.URL);
-      }; })(row);
-    }
-  }
-}
-
 // associate a Leaflet marker with a data row/object
 function addMarker(item) {
   // build the marker
-  var title = item["Route Type"] + " " + item.Rating + " " + item.Pitches + "p " + item["Avg Stars"] + "* " + item.Route;
-  var popup = "<div style=\"width:300px; height: 300px; position:relative;\"><iframe src=\"" + item.URL + "\" style=\"position:absolute; top:0px; left:0px;  width:100%; height:100%; border: none; overflow: hidden;\"></iframe></div>";
+  var title = formatData(item["Location"]);
+  var popup = formatData(item["Location"]);
   var marker = L.marker([item["Area Latitude"], item["Area Longitude"]], {
     opacity: 1,
     title: title
@@ -193,7 +164,7 @@ MapView.prototype.addData = function(data, predicate = function(item) { return t
   for (let row of filter(data, predicate)) {
     this.markers.addLayer(row.marker);
   }
-}
+};
 MapView.prototype.boundsPredicate = function(item) {
   var bounds = this.map.getBounds();
   return item["Area Latitude"] <= bounds.getNorth() &&
@@ -203,24 +174,75 @@ MapView.prototype.boundsPredicate = function(item) {
 };
 
 // The frame viewer
-function FrameView(elementId) {
+function FrameView(elementId, connect) {
+  // toggle "connected" so you don't hammer MP's server whiel testing
+  this.connected = connect;
   this.frame = document.getElementById(elementId);
   this.goHome();
 }
 FrameView.prototype.goHome = function() {
-  if (live) {
+  if (this.connected) {
     this.frame.setAttribute('src', "https://www.mountainproject.com/area/105739322/city-of-rocks");
   }
 };
 FrameView.prototype.goToRoute = function(url) {
-  if (live) {
+  if (this.connected) {
     this.frame.setAttribute('src', url);
   }
 };
 
+// Table viewer
+function TableView(elementId) {
+  this.table = document.getElementById(elementId);
+}
+TableView.prototype.clear = function() {
+  removeAllChildNodes(this.table);
+  this.addHeader(this.fields);
+}
+TableView.prototype.addHeader = function(fields) {
+  this.fields = fields;
+  var tr = this.table.insertRow(0);
+  for (let field of fields) {
+    var th = document.createElement('th');
+    th.innerHTML = field;
+    tr.appendChild(th);
+  }
+}
+TableView.prototype.addRow = function(row) {
+  tr = this.table.insertRow(-1);
+  for (let field of this.fields) {
+    var td = tr.insertCell(-1);
+    td.innerHTML = formatData(row[field]);
+  }
+  // set row onclick listener
+  (function(row) { tr.onclick = function(){
+    focus(row);
+  }; })(row);
+}
+TableView.prototype.addRows = function(rows, predicate = function(item) { return true; }) {
+  for (let row of filter(rows, predicate)) {
+    this.addRow(row);
+  }
+};
+TableView.prototype.highlight = function(url) {
+  // TODO highlight the selected row
+  //for (let tr of this.table.firstElementChild.children) {
+  //  console.log(tr);
+  //}
+};
+
+// --------------------------------------------------
+// all use of globals should be limited to below here
+// --------------------------------------------------
+function focus(row) {
+  mapview.flyTo(row.marker);
+  frameview.goToRoute(row.URL);
+  tableview.highlight(row.URL);
+}
+
 var mapview = new MapView();
-var frameview = new FrameView("preview-frame");
-var table = document.getElementById("data-table");
+var frameview = new FrameView("preview-frame", connect=false);
+var tableview = new TableView("data-table");
 var data;
 
   // Read markers data from data.csv
@@ -234,12 +256,13 @@ var data;
     
     mapview.addData(data);
     
-    displayData(table, result.data, result.meta['fields'], mapview,
-        mapview.boundsPredicate.bind(mapview));
+    tableview.addHeader(result.meta['fields']);
+    tableview.addRows(data);
     
+    // set mapview move listener
     mapview.map.on('moveend', function(e) {
-      displayData(table, result.data, result.meta['fields'], mapview,
-        mapview.boundsPredicate.bind(mapview));
+      tableview.clear();
+      tableview.addRows(data, mapview.boundsPredicate.bind(mapview));
       });
 
   });
