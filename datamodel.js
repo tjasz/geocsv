@@ -18,19 +18,20 @@ function DataModel(data) {
     }
   }
 }
-DataModel.prototype.getComparator = function(field) {
+DataModel.prototype.getComparator = function(field, asc=true) {
   return function(a, b) {
     if ("number" == this.types[field]) {
       var va = Number(a[field]);
       var vb = Number(b[field]);
-      return va - vb;
+      result = va - vb;
     } else {
-      return a[field] < b[field] ? -1 : a[field] > b[field] ? 1 : 0;
+      result = a[field] < b[field] ? -1 : a[field] > b[field] ? 1 : 0;
     }
+    return result * (asc ? 1 : -1);
   };
 };
-DataModel.prototype.sortBy = function(field) {
-  this.filteredData.sort(this.getComparator(field).bind(this));
+DataModel.prototype.sortBy = function(field, asc=true) {
+  this.filteredData.sort(this.getComparator(field, asc).bind(this));
 };
 DataModel.prototype.filter = function(predicate) {
   this.predicate = predicate;

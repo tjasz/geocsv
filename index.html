@@ -100,6 +100,7 @@ function addMarkers(data) {
 // --------------------------------------------------
 function focus(row) {
   //mapview.flyTo(row.marker);
+  row.marker.openPopup();
   frameview.goToRoute(row.URL);
   tableview.highlight(row.URL);
 }
@@ -114,8 +115,8 @@ function refresh() {
   tableview.clear();
   tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview));
 }
-function sortby(field) {
-  datamodel.sortBy(field);
+function sortby(field, asc=true) {
+  datamodel.sortBy(field, asc);
   tableview.clear();
   tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview));
 }

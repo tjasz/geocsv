@@ -14,7 +14,14 @@ TableView.prototype.addHeader = function(fields) {
     if (this.hiddenColumns.includes(field)) { continue; }
     var th = document.createElement('th');
     th.innerHTML = field;
-    th.onclick = function(){ sortby(field); };
+    var darr = document.createElement('a');
+    darr.onclick = function(){ sortby(field); };
+    darr.innerHTML = "&darr;";
+    th.appendChild(darr);
+    var uarr = document.createElement('a');
+    uarr.onclick = function(){ sortby(field, asc=false); };
+    uarr.innerHTML = "&uarr;";
+    th.appendChild(uarr);
     tr.appendChild(th);
   }
 }

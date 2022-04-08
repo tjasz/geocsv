@@ -37,7 +37,10 @@ h1 {
   color: white;
   border: 1px solid black;
   border-bottom: 2px solid black;
+}
+#data-table a {
   cursor: pointer;
+  margin: 0.25em;
 }
 #data-table tr {
 }
