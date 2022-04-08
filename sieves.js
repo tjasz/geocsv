@@ -27,7 +27,12 @@ StringSieve.prototype.predicate = function(x) {
   if (this.substrs.length < 1) return true;
   result = false;
   for (let ss of this.substrs) {
-    result = result || x.toUpperCase().includes(ss.toUpperCase());
+    if (ss.charAt(0) === "!")
+    {
+      result = result && !x.toUpperCase().includes(ss.substring(1).toUpperCase());
+    } else {
+      result = result || x.toUpperCase().includes(ss.toUpperCase());
+    }
   }
   return result;
 };
