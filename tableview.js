@@ -1,7 +1,7 @@
 // Table viewer
 function TableView(elementId) {
   this.table = document.getElementById(elementId);
-  this.hiddenColumns = ["Area Latitude", "Area Longitude", "URL", "Your Stars"];
+  this.hiddenColumns = ["Area Latitude", "Area Longitude", "URL", "Your Stars", "marker"];
 }
 TableView.prototype.clear = function() {
   removeAllChildNodes(this.table);
@@ -22,6 +22,10 @@ TableView.prototype.addHeader = function(fields) {
     uarr.onclick = function(){ sortby(field, asc=false); };
     uarr.innerHTML = "&uarr;";
     th.appendChild(uarr);
+    var fbut = document.createElement('a');
+    fbut.onclick = function(evt){ openFilterDialog(field, evt); };
+    fbut.innerHTML = "F";
+    th.appendChild(fbut);
     tr.appendChild(th);
   }
 }

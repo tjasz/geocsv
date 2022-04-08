@@ -32,6 +32,7 @@
   <table id="data-table" cellspacing="0">
   </table>
 </div>
+<div id="filter-dialog"></div>
 
 <script src="algorithm.js"></script>
 <script src="mapview.js"></script>
@@ -106,6 +107,7 @@ function focus(row) {
 }
 // refresh data in all views; to be called if change to data, filtering, or sorting
 function refresh() {
+console.log(datamodel.filteredData);
   mapview.clear();
   mapview.addData(datamodel.filteredData);
   mapview.resetZoom();
@@ -119,6 +121,58 @@ function sortby(field, asc=true) {
   datamodel.sortBy(field, asc);
   tableview.clear();
   tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview));
+}
+function openFilterDialog(field, evt) {
+  // make the dialog visible at the mouse location
+  var dialog = document.getElementById("filter-dialog");
+  removeAllChildNodes(dialog);
+  dialog.style.visibility = "visible";
+  dialog.style.display = "block";
+  dialog.style.left = Math.min($(document).width() - 304, evt.pageX) + "px";
+  dialog.style.top = (evt.pageY + 20) + "px";
+  // put the fieldname as a header
+  var fieldname = document.createElement("h3");
+  fieldname.innerHTML = field;
+  dialog.appendChild(fieldname);
+  // add filter options
+  if (datamodel.filteredData.length > 1) {
+    if (datamodel.types[field] === "number") {
+      var inputMin = document.createElement("input");
+      inputMin.field = field;
+      inputMin.setAttribute("type", "text");
+      inputMin.id = "inputMin";
+      inputMin.setAttribute("name", "inputMin");
+      inputMin.addEventListener("change", updateFilter);
+      dialog.appendChild(inputMin);
+      dialog.appendChild(document.createTextNode(" to "));
+      var inputMax = document.createElement("input");
+      inputMax.field = field;
+      inputMax.setAttribute("type", "text");
+      inputMax.id = "inputMax";
+      inputMax.setAttribute("name", "inputMax");
+      inputMax.addEventListener("change", updateFilter);
+      dialog.appendChild(inputMax);
+    } else {
+    }
+  }
+  // include a button to close the dialog and update the filtering
+  var button = document.createElement("button");
+  button.setAttribute("type", "button");
+  button.innerHTML = "OK";
+  button.onclick = closeFilterDialog;
+  dialog.appendChild(button);
+}
+function updateFilter(e) {
+  globalPredicate = function(item) {
+    return item[e.target.field] < e.target.value;
+  };
+}
+function closeFilterDialog() {
+  var dialog = document.getElementById("filter-dialog");
+  dialog.style.visibility = "hidden";
+  dialog.style.display = "none";
+  datamodel.filter(globalPredicate);
+  refresh();
 }
 
 var mapview = new MapView();
@@ -144,10 +198,11 @@ $.get('city-of-rocks.csv', function(csvString) {
 
   // Use PapaParse to convert string to array of objects
   var result = Papa.parse(csvString, {header: true, dynamicTyping: false});
+  // associate markers with each data row/object
+  addMarkers(result.data);
+  // put it in a data model
   datamodel = new DataModel(result.data);
   datamodel.filter(globalPredicate);
-  // associate markers with each data row/object
-  addMarkers(datamodel.filteredData);
   
   mapview.addData(datamodel.filteredData);
   

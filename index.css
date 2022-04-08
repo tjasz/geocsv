@@ -9,6 +9,10 @@ h1 {
   color: white;
   border-bottom: 2px solid black;
 }
+h3 {
+  padding: 0.5em;
+  margin: 0;
+}
 .leaflet-container {
   float: left;
   height: 800px;
@@ -41,6 +45,7 @@ h1 {
 #data-table a {
   cursor: pointer;
   margin: 0.25em;
+  color: #b3e7ff;
 }
 #data-table tr {
 }
@@ -51,4 +56,20 @@ h1 {
   border: 1px solid black;
   margin: 0;
   cursor: pointer;
+}
+#filter-dialog {
+  visibility: hidden;
+  display: none;
+  top: 0;
+  left: 0;
+  max-width: 300px;
+  max-height: 300px;
+  position: absolute;
+  background: white;
+  color: #336799;
+  border: 2px solid black;
+  z-index: 4000;
+}
+#filter-dialog button {
+  margin: 0.5em;
 }
