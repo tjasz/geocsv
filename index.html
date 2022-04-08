@@ -168,6 +168,10 @@ function openFilterDialog(field, evt) {
       }
       dialog.appendChild(inputStr);
     }
+    var clearlink = document.createElement("a");
+    clearlink.innerHTML = "clear";
+    clearlink.onclick = clearSieve;
+    dialog.appendChild(clearlink);
   }
   // include a button to close the dialog and update the filtering
   var button = document.createElement("button");
@@ -175,6 +179,10 @@ function openFilterDialog(field, evt) {
   button.innerHTML = "OK";
   button.onclick = closeFilterDialog;
   dialog.appendChild(button);
+}
+function clearSieve(e) {
+  sieve.clear(e.target.parentElement.field);
+  closeFilterDialog();
 }
 function updateNumberSieve(e) {
   var newsieve = new NumberSieve();
