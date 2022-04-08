@@ -104,18 +104,18 @@ function focus(row) {
 // refresh data in all views; to be called if change to data, globalPredicate, or sorting
 function refresh() {
   mapview.clear();
-  mapview.addData(datamodel.data, globalPredicate);
+  mapview.addData(datamodel.filteredData, globalPredicate);
   mapview.resetZoom();
   
   frameview.goHome();
   
   tableview.clear();
-  tableview.addRows(filter(datamodel.data, globalPredicate), focus, mapview.boundsPredicate.bind(mapview));
+  tableview.addRows(filter(datamodel.filteredData, globalPredicate), focus, mapview.boundsPredicate.bind(mapview));
 }
 function sortby(field) {
   datamodel.sortBy(field);
   tableview.clear();
-  tableview.addRows(filter(datamodel.data, globalPredicate), focus, mapview.boundsPredicate.bind(mapview));
+  tableview.addRows(filter(datamodel.filteredData, globalPredicate), focus, mapview.boundsPredicate.bind(mapview));
 }
 
 var mapview = new MapView();
@@ -134,7 +134,7 @@ var datamodel;
 // set mapview move listener
 mapview.map.on('moveend', function(e) {
   tableview.clear();
-  tableview.addRows(filter(datamodel.data, globalPredicate), focus, mapview.boundsPredicate.bind(mapview));
+  tableview.addRows(filter(datamodel.filteredData, globalPredicate), focus, mapview.boundsPredicate.bind(mapview));
   });
 
 // Read markers data from CSV, populate views
@@ -144,12 +144,12 @@ $.get('city-of-rocks.csv', function(csvString) {
   var result = Papa.parse(csvString, {header: true, dynamicTyping: false});
   datamodel = new DataModel(result.data);
   // associate markers with each data row/object
-  addMarkers(datamodel.data);
+  addMarkers(datamodel.filteredData);
   
-  mapview.addData(datamodel.data, globalPredicate);
+  mapview.addData(datamodel.filteredData, globalPredicate);
   
   tableview.addHeader(datamodel.keys);
-  tableview.addRows(filter(datamodel.data, globalPredicate), focus, mapview.boundsPredicate.bind(mapview));
+  tableview.addRows(filter(datamodel.filteredData, globalPredicate), focus, mapview.boundsPredicate.bind(mapview));
 });
 
 </script>
