@@ -17,6 +17,21 @@ NumberSieve.prototype.predicate = function(x) {
   return result;
 };
 
+function StringSieve() {
+  this.substrs = [];
+}
+StringSieve.prototype.set = function(substrs) {
+  this.substrs = substrs;
+};
+StringSieve.prototype.predicate = function(x) {
+  if (this.substrs.length < 1) return true;
+  result = false;
+  for (let ss of this.substrs) {
+    result = result || x.toUpperCase().includes(ss.toUpperCase());
+  }
+  return result;
+};
+
 function FieldSieve() {
   this.sieves = {}
 }

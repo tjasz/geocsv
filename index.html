@@ -157,7 +157,16 @@ function openFilterDialog(field, evt) {
         inputMax.value = sieve.sieves[field].max;
       }
       dialog.appendChild(inputMax);
-    } else {
+    } else { // string sieve
+      var inputStr = document.createElement("input");
+      inputStr.setAttribute("type", "text");
+      inputStr.id = "inputStr";
+      inputStr.setAttribute("name", "inputStr");
+      inputStr.addEventListener("change", updateStringSieve);
+      if (sieve.sieves[field] && null !== sieve.sieves[field].max) {
+        inputStr.value = sieve.sieves[field].substrs.join(";");
+      }
+      dialog.appendChild(inputStr);
     }
   }
   // include a button to close the dialog and update the filtering
@@ -171,6 +180,11 @@ function updateNumberSieve(e) {
   var newsieve = new NumberSieve();
   newsieve.setMin(parseFloat(document.getElementById("inputMin").value));
   newsieve.setMax(parseFloat(document.getElementById("inputMax").value));
+  sieve.set(e.target.parentElement.field, newsieve);
+}
+function updateStringSieve(e) {
+  var newsieve = new StringSieve();
+  newsieve.set(document.getElementById("inputStr").value.split(";"));
   sieve.set(e.target.parentElement.field, newsieve);
 }
 function closeFilterDialog() {
