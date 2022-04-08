@@ -125,6 +125,7 @@ function sortby(field, asc=true) {
 function openFilterDialog(field, evt) {
   // make the dialog visible at the mouse location
   var dialog = document.getElementById("filter-dialog");
+  dialog.field = field;
   removeAllChildNodes(dialog);
   dialog.style.visibility = "visible";
   dialog.style.display = "block";
@@ -138,19 +139,23 @@ function openFilterDialog(field, evt) {
   if (datamodel.filteredData.length > 1) {
     if (datamodel.types[field] === "number") {
       var inputMin = document.createElement("input");
-      inputMin.field = field;
       inputMin.setAttribute("type", "text");
       inputMin.id = "inputMin";
       inputMin.setAttribute("name", "inputMin");
-      inputMin.addEventListener("change", updateFilter);
+      inputMin.addEventListener("change", updateNumberSieve);
+      if (sieve.sieves[field] && null !== sieve.sieves[field].min && !isNaN(sieve.sieves[field].min)) {
+        inputMin.value = sieve.sieves[field].min;
+      }
       dialog.appendChild(inputMin);
       dialog.appendChild(document.createTextNode(" to "));
       var inputMax = document.createElement("input");
-      inputMax.field = field;
       inputMax.setAttribute("type", "text");
       inputMax.id = "inputMax";
       inputMax.setAttribute("name", "inputMax");
-      inputMax.addEventListener("change", updateFilter);
+      inputMax.addEventListener("change", updateNumberSieve);
+      if (sieve.sieves[field] && null !== sieve.sieves[field].max && !isNaN(sieve.sieves[field].max)) {
+        inputMax.value = sieve.sieves[field].max;
+      }
       dialog.appendChild(inputMax);
     } else {
     }
@@ -162,10 +167,11 @@ function openFilterDialog(field, evt) {
   button.onclick = closeFilterDialog;
   dialog.appendChild(button);
 }
-function updateFilter(e) {
+function updateNumberSieve(e) {
   var newsieve = new NumberSieve();
-  newsieve.setMax(e.target.value);
-  sieve.set(e.target.field, newsieve);
+  newsieve.setMin(parseFloat(document.getElementById("inputMin").value));
+  newsieve.setMax(parseFloat(document.getElementById("inputMax").value));
+  sieve.set(e.target.parentElement.field, newsieve);
 }
 function closeFilterDialog() {
   var dialog = document.getElementById("filter-dialog");

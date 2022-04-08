@@ -12,8 +12,8 @@ NumberSieve.prototype.setRange = function(min, max) {
 };
 NumberSieve.prototype.predicate = function(x) {
   result = true;
-  if (this.min) result = result && this.min < x;
-  if (this.max) result = result && this.max > x;
+  if (null !== this.min && !isNaN(this.min)) result = result && this.min <= x;
+  if (null !== this.max&& !isNaN(this.max)) result = result && this.max >= x;
   return result;
 };
 
