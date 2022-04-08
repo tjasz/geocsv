@@ -238,7 +238,7 @@ TableView.prototype.highlight = function(url) {
 // all use of globals should be limited to below here
 // --------------------------------------------------
 function focus(row) {
-  mapview.flyTo(row.marker);
+  //mapview.flyTo(row.marker);
   frameview.goToRoute(row.URL);
   tableview.highlight(row.URL);
 }
@@ -258,7 +258,11 @@ var mapview = new MapView();
 var frameview = new FrameView("preview-frame", connect=false);
 var tableview = new TableView("data-table");
 var globalPredicate = function(item) {
-  return true;
+  var scary = ("string" === typeof item.Rating) && (item.Rating.includes("PG13") || item.Rating.includes("R") || item.Rating.includes("X"));
+  var easy = item.Rating >= "5.6" && item.Rating < "5.9";
+  var good = item["Avg Stars"] > 2;
+  var popular = !Number.isInteger(item["Avg Stars"]);
+  return good && popular && !scary && easy && item["Route Type"] === "Trad";
   };
 var data;
 
