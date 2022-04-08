@@ -39,6 +39,7 @@
 <script src="frameview.js"></script>
 <script src="tableview.js"></script>
 <script src="datamodel.js"></script>
+<script src="sieves.js"></script>
 
 <script>
 
@@ -107,7 +108,6 @@ function focus(row) {
 }
 // refresh data in all views; to be called if change to data, filtering, or sorting
 function refresh() {
-console.log(datamodel.filteredData);
   mapview.clear();
   mapview.addData(datamodel.filteredData);
   mapview.resetZoom();
@@ -163,21 +163,22 @@ function openFilterDialog(field, evt) {
   dialog.appendChild(button);
 }
 function updateFilter(e) {
-  globalPredicate = function(item) {
-    return item[e.target.field] < e.target.value;
-  };
+  var newsieve = new NumberSieve();
+  newsieve.setMax(e.target.value);
+  sieve.set(e.target.field, newsieve);
 }
 function closeFilterDialog() {
   var dialog = document.getElementById("filter-dialog");
   dialog.style.visibility = "hidden";
   dialog.style.display = "none";
-  datamodel.filter(globalPredicate);
+  datamodel.filter(sieve.predicate.bind(sieve));
   refresh();
 }
 
 var mapview = new MapView();
 var frameview = new FrameView("preview-frame", connect=false);
 var tableview = new TableView("data-table");
+var sieve = new FieldSieve();
 var globalPredicate = function(item) {
   var scary = ("string" === typeof item.Rating) && (item.Rating.includes("PG13") || item.Rating.includes("R") || item.Rating.includes("X"));
   var easy = item.Rating >= "5.6" && item.Rating < "5.9";
@@ -202,7 +203,7 @@ $.get('city-of-rocks.csv', function(csvString) {
   addMarkers(result.data);
   // put it in a data model
   datamodel = new DataModel(result.data);
-  datamodel.filter(globalPredicate);
+  datamodel.filter(sieve.predicate.bind(sieve));
   
   mapview.addData(datamodel.filteredData);
   
