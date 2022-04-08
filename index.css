@@ -2,6 +2,13 @@ html, body {
   height: 100%;
   margin: 0;
 }
+h1 {
+  padding: 0.5em;
+  margin: 0;
+  background-color: #336799;
+  color: white;
+  border-bottom: 2px solid black;
+}
 .leaflet-container {
   float: left;
   height: 800px;
@@ -21,4 +28,24 @@ html, body {
   height:100%;
   border: none;
   overflow: hidden;
+}
+#data-table {
+  border-top: 2px solid black;
+}
+#data-table th {
+  background-color: #336799;
+  color: white;
+  border: 1px solid black;
+  border-bottom: 2px solid black;
+  cursor: pointer;
+}
+#data-table tr {
+}
+#data-table tr:nth-child(odd) {
+  background-color: #f3f6fa;
+}
+#data-table tr td {
+  border: 1px solid black;
+  margin: 0;
+  cursor: pointer;
 }
