@@ -16,7 +16,7 @@ TableView.prototype.addHeader = function(fields) {
     tr.appendChild(th);
   }
 }
-TableView.prototype.addRow = function(row) {
+TableView.prototype.addRow = function(row, rowaction = function(row) {}) {
   tr = this.table.insertRow(-1);
   for (let field of this.fields) {
     var td = tr.insertCell(-1);
@@ -24,13 +24,13 @@ TableView.prototype.addRow = function(row) {
   }
   // set row onclick listener
   (function(row) { tr.onclick = function(){
-    focus(row);
+    rowaction(row);
   }; })(row);
 }
-TableView.prototype.addRows = function(rows, predicate = function(item) { return true; }) {
+TableView.prototype.addRows = function(rows, rowaction = function(row) {}, predicate = function(item) { return true; }) {
   if (null === rows) return;
   for (let row of filter(rows, predicate)) {
-    this.addRow(row);
+    this.addRow(row, rowaction);
   }
 };
 TableView.prototype.highlight = function(url) {

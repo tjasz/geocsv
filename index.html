@@ -109,12 +109,12 @@ function refresh() {
   frameview.goHome();
   
   tableview.clear();
-  tableview.addRows(filter(data, globalPredicate), mapview.boundsPredicate.bind(mapview));
+  tableview.addRows(filter(data, globalPredicate), focus, mapview.boundsPredicate.bind(mapview));
 }
 function sortby(field) {
   data.sort((a, b) => a[field] > b[field] ? 1 : a[field] < b[field] ? -1 : 0);
   tableview.clear();
-  tableview.addRows(filter(data, globalPredicate), mapview.boundsPredicate.bind(mapview));
+  tableview.addRows(filter(data, globalPredicate), focus, mapview.boundsPredicate.bind(mapview));
 }
 
 var mapview = new MapView();
@@ -132,7 +132,7 @@ var data;
 // set mapview move listener
 mapview.map.on('moveend', function(e) {
   tableview.clear();
-  tableview.addRows(filter(data, globalPredicate), mapview.boundsPredicate.bind(mapview));
+  tableview.addRows(filter(data, globalPredicate), focus, mapview.boundsPredicate.bind(mapview));
   });
 
 // Read markers data from CSV, populate views
@@ -147,7 +147,7 @@ $.get('city-of-rocks.csv', function(csvString) {
   mapview.addData(data, globalPredicate);
   
   tableview.addHeader(result.meta['fields']);
-  tableview.addRows(filter(data, globalPredicate), mapview.boundsPredicate.bind(mapview));
+  tableview.addRows(filter(data, globalPredicate), focus, mapview.boundsPredicate.bind(mapview));
 });
 
 </script>
