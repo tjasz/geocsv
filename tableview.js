@@ -1,6 +1,7 @@
 // Table viewer
 function TableView(elementId) {
   this.table = document.getElementById(elementId);
+  this.hiddenColumns = ["Area Latitude", "Area Longitude", "URL", "Your Stars"];
 }
 TableView.prototype.clear = function() {
   removeAllChildNodes(this.table);
@@ -10,6 +11,7 @@ TableView.prototype.addHeader = function(fields) {
   this.fields = fields;
   var tr = this.table.insertRow(0);
   for (let field of fields) {
+    if (this.hiddenColumns.includes(field)) { continue; }
     var th = document.createElement('th');
     th.innerHTML = field;
     th.onclick = function(){ sortby(field); };
@@ -19,6 +21,7 @@ TableView.prototype.addHeader = function(fields) {
 TableView.prototype.addRow = function(row, rowaction = function(row) {}) {
   tr = this.table.insertRow(-1);
   for (let field of this.fields) {
+    if (this.hiddenColumns.includes(field)) { continue; }
     var td = tr.insertCell(-1);
     td.innerHTML = formatData(row[field]);
   }
