@@ -66,7 +66,7 @@ function refresh() {
   mapview.addData(datamodel.filteredData);
   mapview.resetZoom();
   
-  frameview.goHome();
+  //frameview.clear();
   
   tableview.clear();
   tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview));
@@ -174,13 +174,6 @@ var mapview = new MapView();
 var frameview = new FrameView("preview-frame", connect=false);
 var tableview = new TableView("data-table");
 var sieve = new FieldSieve();
-var globalPredicate = function(item) {
-  var scary = ("string" === typeof item.Rating) && (item.Rating.includes("PG13") || item.Rating.includes("R") || item.Rating.includes("X"));
-  var easy = item.Rating >= "5.6" && item.Rating < "5.9";
-  var good = item["Avg Stars"] > 2;
-  var popular = !Number.isInteger(item["Avg Stars"]);
-  return good && popular && !scary && easy && item["Route Type"] === "Trad";
-  };
 var datamodel;
 
 // set mapview move listener

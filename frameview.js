@@ -5,9 +5,9 @@ function FrameView(elementId, connect) {
   this.frame = document.getElementById(elementId);
   this.goHome();
 }
-FrameView.prototype.goHome = function() {
+FrameView.prototype.clear = function() {
   if (this.connected) {
-    this.frame.setAttribute('src', "https://www.mountainproject.com/area/105739322/city-of-rocks");
+    this.frame.setAttribute('src', "");
   }
 };
 FrameView.prototype.goToRoute = function(url) {
