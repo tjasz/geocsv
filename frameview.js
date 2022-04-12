@@ -3,7 +3,7 @@ function FrameView(elementId, connect) {
   // toggle "connected" so you don't hammer MP's server whiel testing
   this.connected = connect;
   this.frame = document.getElementById(elementId);
-  this.goHome();
+  this.clear();
 }
 FrameView.prototype.clear = function() {
   if (this.connected) {

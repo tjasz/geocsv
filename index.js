@@ -170,29 +170,36 @@ function readFile(fname) {
   reader.readAsText(fname);
 }
 
-var mapview = new MapView();
-var frameview = new FrameView("preview-frame", connect=false);
-var tableview = new TableView("data-table");
-var sieve = new FieldSieve();
+var mapview;
+var frameview;
+var tableview;
+var sieve;
 var datamodel;
 
-// set mapview move listener
-mapview.map.on('moveend', function(e) {
-  tableview.clear();
-  tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview));
-  });
 function importData(csvString) {
   // Use PapaParse to convert string to array of objects
   var result = Papa.parse(csvString, {header: true, dynamicTyping: false, skipEmptyLines: true});
   // associate markers with each data row/object
   addMarkers(result.data);
+
   // put it in a data model
+  sieve = new FieldSieve();
   datamodel = new DataModel(result.data);
   datamodel.filter(sieve.predicate.bind(sieve));
   
+  mapview = new MapView();
   mapview.addData(datamodel.filteredData);
   mapview.resetZoom();
   
+  tableview = new TableView("data-table");
   tableview.addHeader(datamodel.keys);
   tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview));
+  
+  // set mapview move listener
+  mapview.map.on('moveend', function(e) {
+    tableview.clear();
+    tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview));
+    });
+    
+  frameview = new FrameView("preview-frame", connect=false);
 }
