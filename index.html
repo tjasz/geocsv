@@ -16,233 +16,35 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
 
 	<link rel="stylesheet" href="index.css" />
-
 	
 </head>
 <body>
-<h1>geoCSViewer</h1>
-
-<div id="top">
-  <div id="map"></div>
-  <div id="preview">
-    <iframe id="preview-frame" src=""></iframe>
+  <h1>geoCSViewer</h1>
+  
+  
+  <div id="setup">
+    <input type="file" id="file-selector">
   </div>
-</div>
-<div id="table">
-  <table id="data-table" cellspacing="0">
-  </table>
-</div>
-<div id="filter-dialog"></div>
 
-<script src="algorithm.js"></script>
-<script src="mapview.js"></script>
-<script src="frameview.js"></script>
-<script src="tableview.js"></script>
-<script src="datamodel.js"></script>
-<script src="sieves.js"></script>
+  <div id="top">
+    <div id="map"></div>
+    <div id="preview">
+      <iframe id="preview-frame" src=""></iframe>
+    </div>
+  </div>
+  <div id="table">
+    <table id="data-table" cellspacing="0">
+    </table>
+  </div>
+  <div id="filter-dialog"></div>
 
-<script>
-
-
-function removeAllChildNodes(parent) {
-    while (parent.firstChild) {
-        parent.removeChild(parent.firstChild);
-    }
-}
-
-function formatData(data) {
-  // if null, return empty string
-  if (null === data) return "";
-  // if a number, return its repr
-  if (typeof data === 'number') {
-    return data;
-  }
-  // if a valid URL, make it a link
-  try {
-    url = new URL(data);
-    return "<a target='_blank' href='" + data + "'>Link</a>";
-  } catch (_) {
-    // if a MP location, split
-    var location = "";
-    var hierarchy = data.split('>');
-    for (var i in hierarchy) {
-      if (hierarchy[i] === " City of Rocks ") {
-        return location;
-      }
-      if (i > 0) location += " > ";
-      location += hierarchy[i];
-    }
-    return data;
-  }
-}
-
-// associate a Leaflet marker with a data row/object
-function addMarker(item) {
-  // build the marker
-  var title = formatData(item["Location"]);
-  var popup = formatData(item["Location"]);
-  var marker = L.marker([item["Area Latitude"], item["Area Longitude"]], {
-    opacity: 1,
-    title: title
-  }).bindPopup(popup);
-  // add it to the object
-  item.marker = marker;
-}
-// add markers to the CSV objects
-function addMarkers(data) {
-  // For each row in data, create a marker and add it to the row/object
-  for (var i in data) {
-    var row = data[i];
-    addMarker(row);
-  }
-}
-
-// --------------------------------------------------
-// all use of globals should be limited to below here
-// --------------------------------------------------
-function focus(row) {
-  //mapview.flyTo(row.marker);
-  row.marker.openPopup();
-  frameview.goToRoute(row.URL);
-  tableview.highlight(row.URL);
-}
-// refresh data in all views; to be called if change to data, filtering, or sorting
-function refresh() {
-  mapview.clear();
-  mapview.addData(datamodel.filteredData);
-  mapview.resetZoom();
-  
-  frameview.goHome();
-  
-  tableview.clear();
-  tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview));
-}
-function sortby(field, asc=true) {
-  datamodel.sortBy(field, asc);
-  tableview.clear();
-  tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview));
-}
-function openFilterDialog(field, evt) {
-  // make the dialog visible at the mouse location
-  var dialog = document.getElementById("filter-dialog");
-  dialog.field = field;
-  removeAllChildNodes(dialog);
-  dialog.style.visibility = "visible";
-  dialog.style.display = "block";
-  dialog.style.left = Math.min($(document).width() - 304, evt.pageX) + "px";
-  dialog.style.top = (evt.pageY + 20) + "px";
-  // put the fieldname as a header
-  var fieldname = document.createElement("h3");
-  fieldname.innerHTML = field;
-  dialog.appendChild(fieldname);
-  // add filter options
-  if (datamodel.filteredData.length > 1) {
-    if (datamodel.types[field] === "number") {
-      var inputMin = document.createElement("input");
-      inputMin.setAttribute("type", "text");
-      inputMin.id = "inputMin";
-      inputMin.setAttribute("name", "inputMin");
-      inputMin.addEventListener("change", updateNumberSieve);
-      if (sieve.sieves[field] && null !== sieve.sieves[field].min && !isNaN(sieve.sieves[field].min)) {
-        inputMin.value = sieve.sieves[field].min;
-      }
-      dialog.appendChild(inputMin);
-      dialog.appendChild(document.createTextNode(" to "));
-      var inputMax = document.createElement("input");
-      inputMax.setAttribute("type", "text");
-      inputMax.id = "inputMax";
-      inputMax.setAttribute("name", "inputMax");
-      inputMax.addEventListener("change", updateNumberSieve);
-      if (sieve.sieves[field] && null !== sieve.sieves[field].max && !isNaN(sieve.sieves[field].max)) {
-        inputMax.value = sieve.sieves[field].max;
-      }
-      dialog.appendChild(inputMax);
-    } else { // string sieve
-      var inputStr = document.createElement("input");
-      inputStr.setAttribute("type", "text");
-      inputStr.id = "inputStr";
-      inputStr.setAttribute("name", "inputStr");
-      inputStr.addEventListener("change", updateStringSieve);
-      if (sieve.sieves[field] && null !== sieve.sieves[field].max) {
-        inputStr.value = sieve.sieves[field].substrs.join(";");
-      }
-      dialog.appendChild(inputStr);
-    }
-    var clearlink = document.createElement("a");
-    clearlink.innerHTML = "clear";
-    clearlink.onclick = clearSieve;
-    dialog.appendChild(clearlink);
-  }
-  // include a button to close the dialog and update the filtering
-  var button = document.createElement("button");
-  button.setAttribute("type", "button");
-  button.innerHTML = "OK";
-  button.onclick = closeFilterDialog;
-  dialog.appendChild(button);
-}
-function clearSieve(e) {
-  sieve.clear(e.target.parentElement.field);
-  closeFilterDialog();
-}
-function updateNumberSieve(e) {
-  var newsieve = new NumberSieve();
-  newsieve.setMin(parseFloat(document.getElementById("inputMin").value));
-  newsieve.setMax(parseFloat(document.getElementById("inputMax").value));
-  sieve.set(e.target.parentElement.field, newsieve);
-}
-function updateStringSieve(e) {
-  var newsieve = new StringSieve();
-  newsieve.set(document.getElementById("inputStr").value.split(";"));
-  sieve.set(e.target.parentElement.field, newsieve);
-}
-function closeFilterDialog() {
-  var dialog = document.getElementById("filter-dialog");
-  dialog.style.visibility = "hidden";
-  dialog.style.display = "none";
-  datamodel.filter(sieve.predicate.bind(sieve));
-  refresh();
-}
-
-var mapview = new MapView();
-var frameview = new FrameView("preview-frame", connect=false);
-var tableview = new TableView("data-table");
-var sieve = new FieldSieve();
-var globalPredicate = function(item) {
-  var scary = ("string" === typeof item.Rating) && (item.Rating.includes("PG13") || item.Rating.includes("R") || item.Rating.includes("X"));
-  var easy = item.Rating >= "5.6" && item.Rating < "5.9";
-  var good = item["Avg Stars"] > 2;
-  var popular = !Number.isInteger(item["Avg Stars"]);
-  return good && popular && !scary && easy && item["Route Type"] === "Trad";
-  };
-var datamodel;
-
-// set mapview move listener
-mapview.map.on('moveend', function(e) {
-  tableview.clear();
-  tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview));
-  });
-
-// Read markers data from CSV, populate views
-$.get('city-of-rocks.csv', function(csvString) {
-
-  // Use PapaParse to convert string to array of objects
-  var result = Papa.parse(csvString, {header: true, dynamicTyping: false});
-  // associate markers with each data row/object
-  addMarkers(result.data);
-  // put it in a data model
-  datamodel = new DataModel(result.data);
-  datamodel.filter(sieve.predicate.bind(sieve));
-  
-  mapview.addData(datamodel.filteredData);
-  mapview.resetZoom();
-  
-  tableview.addHeader(datamodel.keys);
-  tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview));
-});
-
-</script>
-
-
+  <script src="algorithm.js"></script>
+  <script src="mapview.js"></script>
+  <script src="frameview.js"></script>
+  <script src="tableview.js"></script>
+  <script src="datamodel.js"></script>
+  <script src="sieves.js"></script>
+  <script src="index.js"></script>
 
 </body>
 </html>

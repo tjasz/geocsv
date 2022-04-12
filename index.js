@@ -157,6 +157,19 @@ function closeFilterDialog() {
   refresh();
 }
 
+const fileSelector = document.getElementById('file-selector');
+  fileSelector.addEventListener('change', (event) => {
+    const fileList = event.target.files;
+    readFile(fileList[0]);
+  });
+function readFile(fname) {
+  const reader = new FileReader();
+  reader.addEventListener('load', (event) => {
+    importData(event.target.result);
+  });
+  reader.readAsText(fname);
+}
+
 var mapview = new MapView();
 var frameview = new FrameView("preview-frame", connect=false);
 var tableview = new TableView("data-table");
@@ -175,12 +188,9 @@ mapview.map.on('moveend', function(e) {
   tableview.clear();
   tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview));
   });
-
-// Read markers data from CSV, populate views
-$.get('city-of-rocks.csv', function(csvString) {
-
+function importData(csvString) {
   // Use PapaParse to convert string to array of objects
-  var result = Papa.parse(csvString, {header: true, dynamicTyping: false});
+  var result = Papa.parse(csvString, {header: true, dynamicTyping: false, skipEmptyLines: true});
   // associate markers with each data row/object
   addMarkers(result.data);
   // put it in a data model
@@ -192,4 +202,4 @@ $.get('city-of-rocks.csv', function(csvString) {
   
   tableview.addHeader(datamodel.keys);
   tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview));
-});
+}
