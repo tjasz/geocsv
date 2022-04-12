@@ -234,6 +234,7 @@ $.get('city-of-rocks.csv', function(csvString) {
   datamodel.filter(sieve.predicate.bind(sieve));
   
   mapview.addData(datamodel.filteredData);
+  mapview.resetZoom();
   
   tableview.addHeader(datamodel.keys);
   tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview));
