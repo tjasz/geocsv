@@ -1,5 +1,13 @@
 // MapView object for managing the map view
 function MapView() {
+  var otmLayer = L.tileLayer('https://a.tile.opentopomap.org/{z}/{x}/{y}.png', {
+		maxZoom: 18,
+		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+			'Imagery &copy; <a href="https://www.opentopomap.org/">opentopomap.org</a>',
+		id: 'mapbox/outdoors-v11',
+		tileSize: 512,
+		zoomOffset: -1
+	});
   var outdoorLayer = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoidGphc3oiLCJhIjoiY2wxcDQ4eG1pMHZxNDNjcGM3djJ4eGphMCJ9.aH-D5oeZHZVzcWQZeeRviQ', {
 		maxZoom: 18,
 		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
@@ -17,13 +25,14 @@ function MapView() {
 		zoomOffset: -1
 	});
   var baseMaps = {
-    "Outdoor": outdoorLayer,
+    "OpenTopoMap": otmLayer,
+    "Mapbox OTM": outdoorLayer,
     "Satellite": satelliteLayer
   };
 	this.map = L.map('map').setView([42.0809,-113.70743], 12);
   this.markers = L.featureGroup().addTo(this.map);
   L.control.layers(baseMaps).addTo(this.map);
-  outdoorLayer.addTo(this.map);
+  otmLayer.addTo(this.map);
 }
 MapView.prototype.flyTo = function(marker) {
   this.map.flyTo(marker.getLatLng(), 18);
