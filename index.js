@@ -58,7 +58,9 @@ function addMarkers(data) {
 function focus(row) {
   //mapview.flyTo(row.marker);
   row.marker.openPopup();
-  frameview.goTo(row[datamodel.urlfield]);
+  if (datamodel.urlfield) {
+    frameview.goTo(row[datamodel.urlfield]);
+  }
   tableview.highlight(row.URL);
 }
 // refresh data in all views; to be called if change to data, filtering, or sorting
@@ -212,8 +214,8 @@ function setupFieldOptions(csvString, delimiter=",") {
   var lonfield = document.getElementById("lonfield");
   var titlefield = document.getElementById("titlefield");
   var urlfield = document.getElementById("urlfield");
-  setOptions(latfield, result.meta.fields, required=false, findText="lat");
-  setOptions(lonfield, result.meta.fields, required=false, findText="lon");
+  setOptions(latfield, result.meta.fields, required=true, findText="lat");
+  setOptions(lonfield, result.meta.fields, required=true, findText="lon");
   setOptions(titlefield, result.meta.fields, required=true);
   setOptions(urlfield, result.meta.fields, required=false, findText="url");
   latfield.addEventListener("change", importData.bind(null, result));
@@ -262,5 +264,5 @@ function importData(csvResult) {
     tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview, datamodel.latfield, datamodel.lonfield));
     });
     
-  frameview = new FrameView("preview-frame", connect=false);
+  frameview = new FrameView("preview-frame", connect=true);
 }
