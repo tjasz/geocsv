@@ -158,14 +158,16 @@ function closeFilterDialog() {
 }
 
 const fileSelector = document.getElementById('file-selector');
-  fileSelector.addEventListener('change', (event) => {
-    const fileList = event.target.files;
-    readFile(fileList[0]);
+const delimText = document.getElementById('delim-text');
+const goButton = document.getElementById('go-button');
+goButton.addEventListener('click', (event) => {
+    const fileList = fileSelector.files;
+    readFile(fileList[0], delimText.value[0]);
   });
-function readFile(fname) {
+function readFile(fname, delim) {
   const reader = new FileReader();
   reader.addEventListener('load', (event) => {
-    importData(event.target.result);
+    importData(event.target.result, delim);
   });
   reader.readAsText(fname);
 }
@@ -176,9 +178,10 @@ var tableview;
 var sieve;
 var datamodel;
 
-function importData(csvString) {
+
+function importData(csvString, delimiter=",") {
   // Use PapaParse to convert string to array of objects
-  var result = Papa.parse(csvString, {header: true, dynamicTyping: false, skipEmptyLines: true});
+  var result = Papa.parse(csvString, {delimiter: delimiter, header: true, dynamicTyping: false, skipEmptyLines: true});
   // associate markers with each data row/object
   addMarkers(result.data);
 
