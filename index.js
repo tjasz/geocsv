@@ -30,12 +30,16 @@ function formatData(data) {
   }
 }
 
+// --------------------------------------------------
+// all use of globals should be limited to below here
+// --------------------------------------------------
+
 // associate a Leaflet marker with a data row/object
 function addMarker(item) {
   // build the marker
-  var title = formatData(item["Location"]);
-  var popup = formatData(item["Location"]);
-  var marker = L.marker([item["Area Latitude"], item["Area Longitude"]], {
+  var title = formatData(item[datamodel.titlefield]);
+  var popup = formatData(item[datamodel.titlefield]);
+  var marker = L.marker([item[datamodel.latfield], item[datamodel.lonfield]], {
     opacity: 1,
     title: title
   }).bindPopup(popup);
@@ -51,13 +55,10 @@ function addMarkers(data) {
   }
 }
 
-// --------------------------------------------------
-// all use of globals should be limited to below here
-// --------------------------------------------------
 function focus(row) {
   //mapview.flyTo(row.marker);
   row.marker.openPopup();
-  frameview.goToRoute(row.URL);
+  frameview.goTo(row[datamodel.urlfield]);
   tableview.highlight(row.URL);
 }
 // refresh data in all views; to be called if change to data, filtering, or sorting
@@ -69,12 +70,12 @@ function refresh() {
   //frameview.clear();
   
   tableview.clear();
-  tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview));
+  tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview, datamodel.latfield, datamodel.lonfield));
 }
 function sortby(field, asc=true) {
   datamodel.sortBy(field, asc);
   tableview.clear();
-  tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview));
+  tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview, datamodel.latfield, datamodel.lonfield));
 }
 function openFilterDialog(field, evt) {
   // make the dialog visible at the mouse location
@@ -159,15 +160,15 @@ function closeFilterDialog() {
 
 const fileSelector = document.getElementById('file-selector');
 const delimText = document.getElementById('delim-text');
-const goButton = document.getElementById('go-button');
-goButton.addEventListener('click', (event) => {
+const nextButton = document.getElementById('next-button');
+nextButton.addEventListener('click', (event) => {
     const fileList = fileSelector.files;
     readFile(fileList[0], delimText.value[0]);
   });
 function readFile(fname, delim) {
   const reader = new FileReader();
   reader.addEventListener('load', (event) => {
-    importData(event.target.result, delim);
+    setupFieldOptions(event.target.result, delim);
   });
   reader.readAsText(fname);
 }
@@ -178,30 +179,87 @@ var tableview;
 var sieve;
 var datamodel;
 
-
-function importData(csvString, delimiter=",") {
+function setOptions(selectEl, options, required=false, findText="") {
+  // add a null option
+  if (!required) {
+    var optionEl = document.createElement("option");
+    optionEl.setAttribute("value", "");
+    optionEl.innerHTML = "None";
+    optionEl.style.color = "grey";
+    selectEl.appendChild(optionEl);
+  }
+  // add an option element for each option
+  for (let opt of options) {
+    optionEl = document.createElement("option");
+    optionEl.setAttribute("value", opt);
+    optionEl.innerHTML = opt;
+    selectEl.appendChild(optionEl);
+    if (findText && opt.toUpperCase().includes(findText.toUpperCase())) {
+      selectEl.value = opt;
+    }
+  }
+}
+function setupFieldOptions(csvString, delimiter=",") {
+  document.getElementById("field-options").style.display = "block";
   // Use PapaParse to convert string to array of objects
   var result = Papa.parse(csvString, {delimiter: delimiter, header: true, dynamicTyping: false, skipEmptyLines: true});
-  // associate markers with each data row/object
-  addMarkers(result.data);
-
-  // put it in a data model
-  sieve = new FieldSieve();
+  
+  // put the data in a datamodel
   datamodel = new DataModel(result.data);
+  
+  // populate the field dropdowns with options
+  var latfield = document.getElementById("latfield");
+  var lonfield = document.getElementById("lonfield");
+  var titlefield = document.getElementById("titlefield");
+  var urlfield = document.getElementById("urlfield");
+  setOptions(latfield, result.meta.fields, required=false, findText="lat");
+  setOptions(lonfield, result.meta.fields, required=false, findText="lon");
+  setOptions(titlefield, result.meta.fields, required=true);
+  setOptions(urlfield, result.meta.fields, required=false, findText="url");
+  latfield.addEventListener("change", importData.bind(null, result));
+  lonfield.addEventListener("change", importData.bind(null, result));
+  titlefield.addEventListener("change", importData.bind(null, result));
+  urlfield.addEventListener("change", importData.bind(null, result));
+  
+  importData(result);
+}
+function importData(csvResult) {
+  datamodel.latfield = latfield.value;
+  datamodel.lonfield = lonfield.value;
+  datamodel.titlefield = titlefield.value;
+  datamodel.urlfield = urlfield.value;
+
+  // associate markers with each data row/object
+  addMarkers(csvResult.data);
+  
+  // filter the data in the data model
+  if (sieve) {
+    sieve.clear();
+  } else {
+    sieve = new FieldSieve();
+  }
   datamodel.filter(sieve.predicate.bind(sieve));
   
-  mapview = new MapView();
+  if (mapview) {
+    mapview.clear();
+  } else {
+    mapview = new MapView();
+  }
   mapview.addData(datamodel.filteredData);
   mapview.resetZoom();
   
-  tableview = new TableView("data-table");
+  if (tableview) {
+    tableview.clear();
+  } else {
+    tableview = new TableView("data-table");
+  }
   tableview.addHeader(datamodel.keys);
-  tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview));
+  tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview, datamodel.latfield, datamodel.lonfield));
   
   // set mapview move listener
   mapview.map.on('moveend', function(e) {
     tableview.clear();
-    tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview));
+    tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview, datamodel.latfield, datamodel.lonfield));
     });
     
   frameview = new FrameView("preview-frame", connect=false);

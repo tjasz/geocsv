@@ -29,7 +29,7 @@ function MapView() {
     "Mapbox OTM": outdoorLayer,
     "Satellite": satelliteLayer
   };
-	this.map = L.map('map').setView([42.0809,-113.70743], 12);
+	this.map = L.map('map').setView([0,0], 1);
   this.markers = L.featureGroup().addTo(this.map);
   L.control.layers(baseMaps).addTo(this.map);
   otmLayer.addTo(this.map);
@@ -50,10 +50,10 @@ MapView.prototype.addData = function(data, predicate = function(item) { return t
     this.markers.addLayer(row.marker);
   }
 };
-MapView.prototype.boundsPredicate = function(item) {
+MapView.prototype.boundsPredicate = function(latfield, lonfield, item) {
   var bounds = this.map.getBounds();
-  return item["Area Latitude"] <= bounds.getNorth() &&
-         item["Area Latitude"] >= bounds.getSouth() &&
-         item["Area Longitude"] >= bounds.getWest() &&
-         item["Area Longitude"] <= bounds.getEast();
+  return item[latfield] <= bounds.getNorth() &&
+         item[latfield] >= bounds.getSouth() &&
+         item[lonfield] >= bounds.getWest() &&
+         item[lonfield] <= bounds.getEast();
 };

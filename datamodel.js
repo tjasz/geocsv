@@ -17,6 +17,11 @@ function DataModel(data) {
       }
     }
   }
+  // field options
+  this.latfield = null;
+  this.lonfield = null;
+  this.titlefield = null;
+  this.urlfield = null;
 }
 DataModel.prototype.getComparator = function(field, asc=true) {
   return function(a, b) {
