@@ -265,4 +265,15 @@ function importData(csvResult) {
     });
     
   frameview = new FrameView("preview-frame", connect=true);
+  
+  // adjust width of top area based on urlfield
+  var previewdiv = document.getElementById("preview");
+  var leafletcontainer = document.getElementsByClassName("leaflet-container")[0];
+  if (datamodel.urlfield) {
+    previewdiv.style.display = "inline";
+    leafletcontainer.style.width = "50%";
+  } else {
+    previewdiv.style.display = "none";
+    leafletcontainer.style.width = "100%";
+  }
 }
