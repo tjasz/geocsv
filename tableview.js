@@ -1,7 +1,7 @@
 // Table viewer
 function TableView(elementId) {
   this.table = document.getElementById(elementId);
-  this.hiddenColumns = ["Area Latitude", "Area Longitude", "URL", "Your Stars", "marker"];
+  this.hiddenColumns = [];
 }
 TableView.prototype.clear = function() {
   removeAllChildNodes(this.table);

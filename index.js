@@ -202,7 +202,8 @@ function setOptions(selectEl, options, required=false, findText="") {
   }
 }
 function setupFieldOptions(csvString, delimiter=",") {
-  document.getElementById("field-options").style.display = "block";
+  var fodiv = document.getElementById("field-options");
+  fodiv.style.display = "block";
   // Use PapaParse to convert string to array of objects
   var result = Papa.parse(csvString, {delimiter: delimiter, header: true, dynamicTyping: false, skipEmptyLines: true});
   
@@ -222,6 +223,27 @@ function setupFieldOptions(csvString, delimiter=",") {
   lonfield.addEventListener("change", importData.bind(null, result));
   titlefield.addEventListener("change", importData.bind(null, result));
   urlfield.addEventListener("change", importData.bind(null, result));
+  
+  // populate the field checkboxes
+  var displayFieldsH3 = document.createElement("h3");
+  displayFieldsH3.innerHTML = "Display Fields";
+  fodiv.appendChild(displayFieldsH3);
+  for (let field of result.meta.fields) {
+    var input = document.createElement("input");
+    input.setAttribute("type", "checkbox");
+    var id = "checkbox-" + field;
+    input.setAttribute("id", id);
+    input.setAttribute("name", id);
+    input.setAttribute("value", field);
+    input.checked = true;
+    input.addEventListener("change", importData.bind(null, result));
+    fodiv.appendChild(input);
+    var label = document.createElement("label");
+    label.setAttribute("for", id);
+    label.innerHTML = field;
+    fodiv.appendChild(label);
+    fodiv.appendChild(document.createElement("br"));
+  }
   
   importData(result);
 }
@@ -256,6 +278,14 @@ function importData(csvResult) {
     tableview = new TableView("data-table");
   }
   tableview.addHeader(datamodel.keys);
+  // hide fields based on checkboxes
+  tableview.hiddenColumns = [];
+  for (let field of tableview.fields) {
+    var cb = document.getElementById("checkbox-" + field);
+    if (!cb.checked) {
+      tableview.hiddenColumns.push(field);
+    }
+  }
   tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview, datamodel.latfield, datamodel.lonfield));
   
   // set mapview move listener
