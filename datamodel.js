@@ -14,7 +14,7 @@ DataModel.prototype.getFieldTypes = function() {
   // get the type info for each column
   // just number or string
   this.types = {};
-  for (let item of data) {
+  for (let item of this.data) {
     for (let key of this.keys) {
       if (!this.types[key]) {
         this.types[key] = isNaN(Number(item[key])) ? "string" : "number";
@@ -50,3 +50,31 @@ DataModel.prototype.filter = function(predicate) {
     }
   }
 };
+// associate a Leaflet marker with a data row/object
+DataModel.prototype.addMarker = function(item) {
+  if (!this.latfield || !this.keys.includes(this.latfield)) {
+    throw "latfield not in data";
+  }
+  if (!this.lonfield || !this.keys.includes(this.lonfield)) {
+    throw "lonfield not in data";
+  }
+  // build the marker
+  if (this.titlefield && this.keys.includes(this.titlefield)) {
+    var title = item[this.titlefield];
+    var popup = item[this.titlefield];
+  }
+  var marker = L.marker([item[this.latfield], item[this.lonfield]], {
+    opacity: 1,
+    title: title
+  }).bindPopup(popup);
+  // add it to the object
+  item.marker = marker;
+}
+// add markers to the CSV objects
+DataModel.prototype.addMarkers = function() {
+  // For each row in data, create a marker and add it to the row/object
+  for (var i in this.data) {
+    var row = this.data[i];
+    this.addMarker(row);
+  }
+}

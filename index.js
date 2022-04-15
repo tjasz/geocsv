@@ -28,27 +28,6 @@ function formatData(data) {
 // all use of globals should be limited to below here
 // --------------------------------------------------
 
-// associate a Leaflet marker with a data row/object
-function addMarker(item) {
-  // build the marker
-  var title = formatData(item[datamodel.titlefield]);
-  var popup = formatData(item[datamodel.titlefield]);
-  var marker = L.marker([item[datamodel.latfield], item[datamodel.lonfield]], {
-    opacity: 1,
-    title: title
-  }).bindPopup(popup);
-  // add it to the object
-  item.marker = marker;
-}
-// add markers to the CSV objects
-function addMarkers(data) {
-  // For each row in data, create a marker and add it to the row/object
-  for (var i in data) {
-    var row = data[i];
-    addMarker(row);
-  }
-}
-
 function focus(row) {
   //mapview.flyTo(row.marker);
   row.marker.openPopup();
@@ -248,7 +227,7 @@ function importData(csvResult) {
   datamodel.urlfield = urlfield.value;
 
   // associate markers with each data row/object
-  addMarkers(csvResult.data);
+  datamodel.addMarkers();
   
   // filter the data in the data model
   if (sieve) {
