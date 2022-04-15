@@ -1,9 +1,3 @@
-function removeAllChildNodes(parent) {
-    while (parent.firstChild) {
-        parent.removeChild(parent.firstChild);
-    }
-}
-
 function formatData(data) {
   // if null, return empty string
   if (null === data) return "";
