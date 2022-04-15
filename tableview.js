@@ -5,7 +5,6 @@ function TableView(elementId) {
 }
 TableView.prototype.clear = function() {
   removeAllChildNodes(this.table);
-  this.addHeader(this.fields);
 }
 TableView.prototype.addHeader = function(fields) {
   this.fields = fields;

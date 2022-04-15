@@ -45,11 +45,13 @@ function refresh() {
   //frameview.clear();
   
   tableview.clear();
+  tableview.addHeader(datamodel.keys);
   tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview, datamodel.latfield, datamodel.lonfield));
 }
 function sortby(field, asc=true) {
   datamodel.sortBy(field, asc);
   tableview.clear();
+  tableview.addHeader(datamodel.keys);
   tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview, datamodel.latfield, datamodel.lonfield));
 }
 function openFilterDialog(field, evt) {
@@ -234,20 +236,21 @@ function importData(csvResult) {
   } else {
     tableview = new TableView("data-table");
   }
-  tableview.addHeader(datamodel.keys);
   // hide fields based on checkboxes
   tableview.hiddenColumns = [];
-  for (let field of tableview.fields) {
+  for (let field of datamodel.keys) {
     var cb = document.getElementById("checkbox-" + field);
     if (!cb.checked) {
       tableview.hiddenColumns.push(field);
     }
   }
+  tableview.addHeader(datamodel.keys);
   tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview, datamodel.latfield, datamodel.lonfield));
   
   // set mapview move listener
   mapview.map.on('moveend', function(e) {
     tableview.clear();
+  tableview.addHeader(datamodel.keys);
     tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview, datamodel.latfield, datamodel.lonfield));
     });
     
