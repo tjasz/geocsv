@@ -3,6 +3,14 @@ function DataModel(data) {
   this.predicate = function(item) { return true; };
   this.filteredData = data;
   this.keys = Object.keys(data[0]);
+  this.getFieldTypes();
+  // field options
+  this.latfield = null;
+  this.lonfield = null;
+  this.titlefield = null;
+  this.urlfield = null;
+}
+DataModel.prototype.getFieldTypes = function() {
   // get the type info for each column
   // just number or string
   this.types = {};
@@ -17,12 +25,7 @@ function DataModel(data) {
       }
     }
   }
-  // field options
-  this.latfield = null;
-  this.lonfield = null;
-  this.titlefield = null;
-  this.urlfield = null;
-}
+};
 DataModel.prototype.getComparator = function(field, asc=true) {
   return function(a, b) {
     if ("number" == this.types[field]) {
