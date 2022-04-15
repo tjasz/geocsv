@@ -39,9 +39,11 @@ DataModel.prototype.sortBy = function(field, asc=true) {
   this.filteredData.sort(this.getComparator(field, asc).bind(this));
 };
 DataModel.prototype.filter = function(predicate) {
-  this.predicate = predicate;
-  this.filteredData = [];
-  for (let item of filter(this.data, this.predicate)) {
-    this.filteredData.push(item);
+  if (this.predicate !== predicate) {
+    this.predicate = predicate;
+    this.filteredData = [];
+    for (let item of filter(this.data, this.predicate)) {
+      this.filteredData.push(item);
+    }
   }
 };
