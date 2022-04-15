@@ -1,5 +1,24 @@
 // DOM utilities
 
+// format a data entry; if URL, link-ify it
+function formatData(data) {
+  // if null, return empty string
+  if (null === data) return "";
+  // if a number, return its repr
+  if (typeof data === 'number') {
+    return data;
+  }
+  // if a valid URL, make it a link
+  try {
+    url = new URL(data);
+    return "<a target='_blank' href='" + data + "'>Link</a>";
+  }
+  // orderwise, return string
+  catch (_) {
+    return data;
+  }
+}
+
 // remove all children from an element
 function removeAllChildNodes(parent) {
     while (parent.firstChild) {

@@ -1,33 +1,3 @@
-function formatData(data) {
-  // if null, return empty string
-  if (null === data) return "";
-  // if a number, return its repr
-  if (typeof data === 'number') {
-    return data;
-  }
-  // if a valid URL, make it a link
-  try {
-    url = new URL(data);
-    return "<a target='_blank' href='" + data + "'>Link</a>";
-  } catch (_) {
-    // if a MP location, split
-    var location = "";
-    var hierarchy = data.split('>');
-    for (var i in hierarchy) {
-      if (hierarchy[i] === " City of Rocks ") {
-        return location;
-      }
-      if (i > 0) location += " > ";
-      location += hierarchy[i];
-    }
-    return data;
-  }
-}
-
-// --------------------------------------------------
-// all use of globals should be limited to below here
-// --------------------------------------------------
-
 function focus(row) {
   //mapview.flyTo(row.marker);
   row.marker.openPopup();
