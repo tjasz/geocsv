@@ -224,7 +224,7 @@ function importData(csvResult) {
     tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview, datamodel.latfield, datamodel.lonfield));
     });
     
-  frameview = new FrameView("preview-frame", connect=true);
+  frameview = new FrameView("preview-frame");
   
   // adjust width of top area based on urlfield
   var previewdiv = document.getElementById("preview");

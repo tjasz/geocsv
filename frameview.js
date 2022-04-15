@@ -1,7 +1,5 @@
 // The frame viewer
-function FrameView(elementId, connect) {
-  // toggle "connected" so you don't hammer MP's server whiel testing
-  this.connected = connect;
+function FrameView(elementId) {
   this.frame = document.getElementById(elementId);
   this.clear();
 }
