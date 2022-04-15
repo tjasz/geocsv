@@ -154,26 +154,6 @@ var tableview;
 var sieve;
 var datamodel;
 
-function setOptions(selectEl, options, required=false, findText="") {
-  // add a null option
-  if (!required) {
-    var optionEl = document.createElement("option");
-    optionEl.setAttribute("value", "");
-    optionEl.innerHTML = "None";
-    optionEl.style.color = "grey";
-    selectEl.appendChild(optionEl);
-  }
-  // add an option element for each option
-  for (let opt of options) {
-    optionEl = document.createElement("option");
-    optionEl.setAttribute("value", opt);
-    optionEl.innerHTML = opt;
-    selectEl.appendChild(optionEl);
-    if (findText && opt.toUpperCase().includes(findText.toUpperCase())) {
-      selectEl.value = opt;
-    }
-  }
-}
 function setupFieldOptions(csvString, delimiter=",") {
   var fodiv = document.getElementById("field-options");
   fodiv.style.display = "block";
