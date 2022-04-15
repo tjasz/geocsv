@@ -4,12 +4,8 @@ function FrameView(elementId) {
   this.clear();
 }
 FrameView.prototype.clear = function() {
-  if (this.connected) {
-    this.frame.setAttribute('src', "");
-  }
+  this.frame.setAttribute('src', "");
 };
 FrameView.prototype.goTo = function(url) {
-  if (this.connected) {
-    this.frame.setAttribute('src', url);
-  }
+  this.frame.setAttribute('src', url);
 };

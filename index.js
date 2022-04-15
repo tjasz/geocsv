@@ -151,7 +151,7 @@ function setupFieldOptions(csvString, delimiter=",") {
   latfield.addEventListener("change", importData.bind(null, result));
   lonfield.addEventListener("change", importData.bind(null, result));
   titlefield.addEventListener("change", importData.bind(null, result));
-  urlfield.addEventListener("change", importData.bind(null, result));
+  urlfield.addEventListener("change", function(e) { setUrlField(e.target.value); });
   
   // populate the field checkboxes
   var displayFieldsH3 = document.createElement("h3");
@@ -176,14 +176,32 @@ function setupFieldOptions(csvString, delimiter=",") {
   
   importData(result);
 }
+function setUrlField(fieldname) {
+  // Adjust width of top area based on urlfield.
+  // Show both map and frame if URL is set. Show just map otherwise.
+  datamodel.urlfield = fieldname;
+  var previewdiv = document.getElementById("preview");
+  var leafletcontainer = document.getElementsByClassName("leaflet-container")[0];
+  if (datamodel.urlfield) {
+    previewdiv.style.display = "inline";
+    leafletcontainer.style.width = "50%";
+  } else {
+    previewdiv.style.display = "none";
+    leafletcontainer.style.width = "100%";
+  }
+}
 function importData(csvResult) {
-  datamodel.latfield = latfield.value;
-  datamodel.lonfield = lonfield.value;
-  datamodel.titlefield = titlefield.value;
-  datamodel.urlfield = urlfield.value;
-
-  // associate markers with each data row/object
-  datamodel.addMarkers();
+  // if latfield, lonfield, or titlefield change:
+  // update the map markers
+  if (datamodel.latfield !== latfield.value ||
+      datamodel.lonfield !== lonfield.value ||
+      datamodel.titlefield !== titlefield.value) {
+    datamodel.latfield = latfield.value;
+    datamodel.lonfield = lonfield.value;
+    datamodel.titlefield = titlefield.value;
+    // associate markers with each data row/object
+    datamodel.addMarkers();
+  }
   
   // filter the data in the data model
   if (sieve) {
@@ -193,6 +211,7 @@ function importData(csvResult) {
   }
   datamodel.filter(sieve.predicate.bind(sieve));
   
+  // add data to the map
   if (mapview) {
     mapview.clear();
   } else {
@@ -201,6 +220,7 @@ function importData(csvResult) {
   mapview.addData(datamodel.filteredData);
   mapview.resetZoom();
   
+  // add data to the table
   if (tableview) {
     tableview.clear();
   } else {
@@ -225,15 +245,5 @@ function importData(csvResult) {
     });
     
   frameview = new FrameView("preview-frame");
-  
-  // adjust width of top area based on urlfield
-  var previewdiv = document.getElementById("preview");
-  var leafletcontainer = document.getElementsByClassName("leaflet-container")[0];
-  if (datamodel.urlfield) {
-    previewdiv.style.display = "inline";
-    leafletcontainer.style.width = "50%";
-  } else {
-    previewdiv.style.display = "none";
-    leafletcontainer.style.width = "100%";
-  }
+  setUrlField(urlfield.value);
 }
