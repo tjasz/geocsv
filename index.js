@@ -136,6 +136,10 @@ function closeFilterDialog() {
 const fileSelector = document.getElementById('file-selector');
 const delimText = document.getElementById('delim-text');
 const nextButton = document.getElementById('next-button');
+fileSelector.addEventListener('change', (event) => {
+    const fileList = fileSelector.files;
+    readFile(fileList[0], delimText.value[0]);
+  });
 nextButton.addEventListener('click', (event) => {
     const fileList = fileSelector.files;
     readFile(fileList[0], delimText.value[0]);
