@@ -32,7 +32,7 @@ function MapView() {
 	this.map = L.map('map').setView([0,0], 1);
   this.markers = L.featureGroup().addTo(this.map);
   L.control.layers(baseMaps).addTo(this.map);
-  otmLayer.addTo(this.map);
+  outdoorLayer.addTo(this.map);
 }
 MapView.prototype.flyTo = function(marker) {
   this.map.flyTo(marker.getLatLng(), 18);
