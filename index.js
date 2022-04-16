@@ -74,6 +74,7 @@ function populateParamInputs(sieveTypeSelector) {
   var sieveType = sieveTypeSelector.value;
   var params = sieveParamsMap[sieveType];
   var paramsInputDiv = document.getElementById("param-inputs-div");
+  removeAllChildNodes(paramsInputDiv);
   for (let param of params) {
     var label = document.createElement("label");
     label.setAttribute("for", sieveType + "-" + param);

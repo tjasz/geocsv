@@ -12,6 +12,6 @@ const SieveType = createEnum([
   'None',
   'IsEmpty', 'IsNotEmpty',
   'TextContains', 'TextDoesNotContain', 'TextStartsWith', 'TextEndsWith', 'TextIsExactly',
-  'DateIs', 'DateIsBefore', 'DateIsAfter',
+  //'DateIs', 'DateIsBefore', 'DateIsAfter', // TODO
   'GreaterThan', 'GreaterThanOrEqualTo', 'LessThan', 'LessThanOrEqualTo', 'IsEqualTo', 'IsNotEqualTo', 'IsBetween', 'IsNotBetween'
   ]);
