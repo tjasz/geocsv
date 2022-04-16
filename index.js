@@ -39,6 +39,7 @@ function openFilterDialog(field, evt) {
   dialog.appendChild(fieldname);
   // add filter options
   if (datamodel.filteredData.length > 1) {
+    // create selector for sieve type (and label for selector)
     var sieveTypeSelectorLabel = document.createElement("label");
     sieveTypeSelectorLabel.setAttribute("for", "sieve-type-selector-" + field);
     sieveTypeSelectorLabel.innerHTML = "Filter Type";
@@ -47,43 +48,18 @@ function openFilterDialog(field, evt) {
     sieveTypeSelector.setAttribute("id", "sieve-type-selector-" + field);
     sieveTypeSelector.setAttribute("name", "sieve-type-selector-" + field);
     setOptions(sieveTypeSelector, Object.keys(SieveType), required=true);
+    sieveTypeSelector.addEventListener("change", function(e) { populateParamInputs(e.target); });
     dialog.appendChild(sieveTypeSelector);
-    
-    if (datamodel.types[field] === "number") {
-      var inputMin = document.createElement("input");
-      inputMin.setAttribute("type", "text");
-      inputMin.id = "inputMin";
-      inputMin.setAttribute("name", "inputMin");
-      inputMin.addEventListener("change", updateNumberSieve);
-      if (sieve.sieves[field] && null !== sieve.sieves[field].min && !isNaN(sieve.sieves[field].min)) {
-        inputMin.value = sieve.sieves[field].min;
-      }
-      dialog.appendChild(inputMin);
-      dialog.appendChild(document.createTextNode(" to "));
-      var inputMax = document.createElement("input");
-      inputMax.setAttribute("type", "text");
-      inputMax.id = "inputMax";
-      inputMax.setAttribute("name", "inputMax");
-      inputMax.addEventListener("change", updateNumberSieve);
-      if (sieve.sieves[field] && null !== sieve.sieves[field].max && !isNaN(sieve.sieves[field].max)) {
-        inputMax.value = sieve.sieves[field].max;
-      }
-      dialog.appendChild(inputMax);
-    } else { // string sieve
-      var inputStr = document.createElement("input");
-      inputStr.setAttribute("type", "text");
-      inputStr.id = "inputStr";
-      inputStr.setAttribute("name", "inputStr");
-      inputStr.addEventListener("change", updateStringSieve);
-      if (sieve.sieves[field] && null !== sieve.sieves[field].max) {
-        inputStr.value = sieve.sieves[field].substrs.join(";");
-      }
-      dialog.appendChild(inputStr);
+    // add a div where the parameter inputs will go
+    var paramInputsDiv = document.createElement("div");
+    paramInputsDiv.id = "param-inputs-div";
+    dialog.appendChild(paramInputsDiv);
+    // set the values to current sieve settings
+    if (sieve.sieves[field]) {
+      var classname = sieve.sieves[field].constructor.name;
+      sieveTypeSelector.value = classname.substring(0, classname.length - 5);
+      populateParamInputs(sieveTypeSelector);
     }
-    var clearlink = document.createElement("a");
-    clearlink.innerHTML = "clear";
-    clearlink.onclick = clearSieve;
-    dialog.appendChild(clearlink);
   }
   // include a button to close the dialog and update the filtering
   var button = document.createElement("button");
@@ -92,27 +68,39 @@ function openFilterDialog(field, evt) {
   button.onclick = closeFilterDialog;
   dialog.appendChild(button);
 }
-function clearSieve(e) {
-  sieve.clear(e.target.parentElement.field);
-  closeFilterDialog();
-}
-function updateNumberSieve(e) {
-  var newsieve = new NumberSieve();
-  newsieve.setMin(parseFloat(document.getElementById("inputMin").value));
-  newsieve.setMax(parseFloat(document.getElementById("inputMax").value));
-  //sieve.set(e.target.parentElement.field, newsieve);
-}
-function updateStringSieve(e) {
-  var newsieve = new StringSieve();
-  newsieve.set(document.getElementById("inputStr").value.split(";"));
-  //sieve.set(e.target.parentElement.field, newsieve);
+// create input boxes for each parameter associated with sieve type
+function populateParamInputs(sieveTypeSelector) {
+  var field = sieveTypeSelector.parentElement.field;
+  var sieveType = sieveTypeSelector.value;
+  var params = sieveParamsMap[sieveType];
+  var paramsInputDiv = document.getElementById("param-inputs-div");
+  for (let param of params) {
+    var label = document.createElement("label");
+    label.setAttribute("for", sieveType + "-" + param);
+    label.innerHTML = param;
+    paramsInputDiv.appendChild(label);
+    var input = document.createElement("input");
+    input.setAttribute("type", "text");
+    input.id = sieveType + "-" + param;
+    input.setAttribute("name", sieveType + "-" + param);
+    if (sieve.sieves[field] && null !== sieve.sieves[field][param]) {
+      input.value = sieve.sieves[field][param];
+    }
+    paramsInputDiv.appendChild(input);
+  }
 }
 function closeFilterDialog(e) {
-  // update the sieve data from the dialog
+  // update the sieve type from the dialog
   var field = e.target.parentElement.field;
   var sieveTypeSelector = document.getElementById("sieve-type-selector-" + field);
   var newSieveConstructor = sieveTypeMap[sieveTypeSelector.value];
-  var newsieve = new newSieveConstructor();
+  // update the sieve parameters from the dialog
+  var params = {};
+  for (let param of sieveParamsMap[sieveTypeSelector.value]) {
+    var input = document.getElementById(sieveTypeSelector.value + "-" + param);
+    params[param] = input.value;
+  }
+  var newsieve = new newSieveConstructor(params);
   sieve.set(field, newsieve);
   // close the dialog
   var dialog = document.getElementById("filter-dialog");

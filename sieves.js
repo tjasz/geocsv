@@ -22,7 +22,8 @@ var sieveTypeMap = {
   None: NoneSieve,
   IsEmpty: IsEmptySieve,
   IsNotEmpty: IsNotEmptySieve,
-  TextContains: NoneSieve,
+  // TODO below here
+  TextContains: TextContainsSieve,
   TextDoesNotContain: NoneSieve,
   TextStartsWith: NoneSieve,
   TextEndsWith: NoneSieve,
@@ -39,20 +40,46 @@ var sieveTypeMap = {
   IsBetween: NoneSieve,
   IsNotBetween: NoneSieve
 };
+var sieveParamsMap = {
+  None: [],
+  IsEmpty: [],
+  IsNotEmpty: [],
+  // TODO below here
+  TextContains: ["Substring"],
+  TextDoesNotContain: [],
+  TextStartsWith: [],
+  TextEndsWith: [],
+  TextIsExactly: [],
+  DateIs: [],
+  DateIsBefore: [],
+  DateIsAfter: [],
+  GreaterThan: [],
+  GreaterThanOrEqualTo: [],
+  LessThan: [],
+  LessThanOrEqualTo: [],
+  IsEqualTo: ["Value"],
+  IsNotEqualTo: ["Value"],
+  IsBetween: [],
+  IsNotBetween: []
+};
 
-function NoneSieve() {
+
+function NoneSieve(params) {
+  Object.assign(this, params);
 }
 NoneSieve.prototype.predicate = function(x) {
   return true;
 }
 
-function IsEmptySieve() {
+function IsEmptySieve(params) {
+  Object.assign(this, params);
 }
 IsEmptySieve.prototype.predicate = function(x) {
   return "" === x;
 }
 
-function IsNotEmptySieve() {
+function IsNotEmptySieve(params) {
+  Object.assign(this, params);
 }
 IsNotEmptySieve.prototype.predicate = function(x) {
   return !(new IsEmptySieve()).predicate(x);
@@ -65,6 +92,27 @@ function IsBetweenSieve(min, max) {
 IsBetweenSieve.prototype.predicate = function(x) {
   return this.min <= x && x <= this.max;
 };
+
+function TextContainsSieve(params) {
+  Object.assign(this, params);
+}
+TextContainsSieve.prototype.predicate = function(x) {
+  return x.toUpperCase().includes(this.Substring.toUpperCase());
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function StringSieve() {
   this.substrs = [];
