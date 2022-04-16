@@ -56,8 +56,11 @@ MapView.prototype.addData = function(data, predicate = function(item) { return t
 };
 MapView.prototype.boundsPredicate = function(latfield, lonfield, item) {
   var bounds = this.map.getBounds();
-  return toDegrees(item[latfield]) <= bounds.getNorth() &&
-         toDegrees(item[latfield]) >= bounds.getSouth() &&
-         toDegrees(item[lonfield]) >= bounds.getWest() &&
-         toDegrees(item[lonfield]) <= bounds.getEast();
+  var itemlat = toDegrees(item[latfield]);
+  var itemlon = toDegrees(item[lonfield]);
+  if (!itemlat || !itemlon) return true; // always display rows with no geodata
+  return itemlat <= bounds.getNorth() &&
+         itemlat >= bounds.getSouth() &&
+         itemlon >= bounds.getWest() &&
+         itemlon <= bounds.getEast();
 };

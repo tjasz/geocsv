@@ -6,7 +6,7 @@ function* filter(data, predicate = function(item) { return true; }) {
 }
 
 function toDegrees(input) {
-  if (!isNaN(Number(input))) return Number(input);
+  if ("" !== input && !isNaN(Number(input))) return Number(input);
   // otherwise try to Nddmmsshh format
   var deg = 0;
   if (input.length >= 9)
