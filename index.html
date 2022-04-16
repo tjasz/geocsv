@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	
-	<title>geoCSViewer</title>
+	<title>geoCSV Viewer</title>
 
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,13 +19,13 @@
 	
 </head>
 <body>
-  <h1>geoCSViewer</h1>
+  <h1>geoCSV Viewer</h1>
   
   
   <div id="setup">
     <input type="file" id="file-selector">
     <label for="delim-text">Delimiter:</label>
-    <input type="text" id="delim-text" name="delim-text" value=",">
+    <input type="text" id="delim-text" name="delim-text" value="," maxlength="1" size="1">
     <input type="button" id="next-button" value="Next">
   </div>
 
@@ -51,8 +51,10 @@
     </div>
   </div>
   <div id="table">
-    <a href="#!" onclick="clearSieve()">Clear All Filters</a>
-    <a href="#!" id="openColumnSelectDialog">Select Visible Columns</a>
+    <div id="table-options">
+      <a href="#!" onclick="clearSieve()">Clear All Filters</a>
+      <a href="#!" id="openColumnSelectDialog">Select Visible Columns</a>
+    </div>
     <table id="data-table" cellspacing="0">
     </table>
   </div>
