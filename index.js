@@ -38,28 +38,26 @@ function openFilterDialog(field, evt) {
   fieldname.innerHTML = field;
   dialog.appendChild(fieldname);
   // add filter options
-  if (datamodel.filteredData.length > 1) {
-    // create selector for sieve type (and label for selector)
-    var sieveTypeSelectorLabel = document.createElement("label");
-    sieveTypeSelectorLabel.setAttribute("for", "sieve-type-selector-" + field);
-    sieveTypeSelectorLabel.innerHTML = "Filter Type";
-    dialog.appendChild(sieveTypeSelectorLabel);
-    var sieveTypeSelector = document.createElement("select");
-    sieveTypeSelector.setAttribute("id", "sieve-type-selector-" + field);
-    sieveTypeSelector.setAttribute("name", "sieve-type-selector-" + field);
-    setOptions(sieveTypeSelector, Object.keys(SieveType), required=true);
-    sieveTypeSelector.addEventListener("change", function(e) { populateParamInputs(e.target); });
-    dialog.appendChild(sieveTypeSelector);
-    // add a div where the parameter inputs will go
-    var paramInputsDiv = document.createElement("div");
-    paramInputsDiv.id = "param-inputs-div";
-    dialog.appendChild(paramInputsDiv);
-    // set the values to current sieve settings
-    if (sieve.sieves[field]) {
-      var classname = sieve.sieves[field].constructor.name;
-      sieveTypeSelector.value = classname.substring(0, classname.length - 5);
-      populateParamInputs(sieveTypeSelector);
-    }
+  // create selector for sieve type (and label for selector)
+  var sieveTypeSelectorLabel = document.createElement("label");
+  sieveTypeSelectorLabel.setAttribute("for", "sieve-type-selector-" + field);
+  sieveTypeSelectorLabel.innerHTML = "Filter Type";
+  dialog.appendChild(sieveTypeSelectorLabel);
+  var sieveTypeSelector = document.createElement("select");
+  sieveTypeSelector.setAttribute("id", "sieve-type-selector-" + field);
+  sieveTypeSelector.setAttribute("name", "sieve-type-selector-" + field);
+  setOptions(sieveTypeSelector, Object.keys(SieveType), required=true);
+  sieveTypeSelector.addEventListener("change", function(e) { populateParamInputs(e.target); });
+  dialog.appendChild(sieveTypeSelector);
+  // add a div where the parameter inputs will go
+  var paramInputsDiv = document.createElement("div");
+  paramInputsDiv.id = "param-inputs-div";
+  dialog.appendChild(paramInputsDiv);
+  // set the values to current sieve settings
+  if (sieve.sieves[field]) {
+    var classname = sieve.sieves[field].constructor.name;
+    sieveTypeSelector.value = classname.substring(0, classname.length - 5);
+    populateParamInputs(sieveTypeSelector);
   }
   // include a button to close the dialog and update the filtering
   var button = document.createElement("button");
