@@ -118,6 +118,61 @@ function clearSieve() {
   datamodel.filter(item => true);
   refresh();
 }
+function openColumnSelectDialog(evt) {
+  // make the dialog visible at the mouse location
+  var dialog = document.getElementById("column-select-dialog");
+  removeAllChildNodes(dialog);
+  dialog.style.visibility = "visible";
+  dialog.style.display = "block";
+  dialog.style.left = Math.min($(document).width() - 304, evt.pageX) + "px";
+  dialog.style.top = (evt.pageY + 20) + "px";
+  // put a header
+  var displayFieldsH3 = document.createElement("h3");
+  displayFieldsH3.innerHTML = "Visible Fields";
+  dialog.appendChild(displayFieldsH3);
+
+  // populate the field checkboxes
+  for (let field of datamodel.keys) {
+    var input = document.createElement("input");
+    input.setAttribute("type", "checkbox");
+    var id = "checkbox-" + field;
+    input.setAttribute("id", id);
+    input.setAttribute("name", id);
+    input.setAttribute("value", field);
+    input.checked = !tableview.hiddenColumns.includes(field);
+    dialog.appendChild(input);
+    var label = document.createElement("label");
+    label.setAttribute("for", id);
+    label.innerHTML = field;
+    dialog.appendChild(label);
+    dialog.appendChild(document.createElement("br"));
+  }
+
+  // include a button to close the dialog and update the filtering
+  var button = document.createElement("button");
+  button.setAttribute("type", "button");
+  button.innerHTML = "OK";
+  button.onclick = closeColumnSelectDialog;
+  dialog.appendChild(button);
+}
+function closeColumnSelectDialog() {
+  // update the table view
+  tableview.clear();
+  // hide fields based on checkboxes
+  tableview.hiddenColumns = [];
+  for (let field of datamodel.keys) {
+    var cb = document.getElementById("checkbox-" + field);
+    if (!cb.checked) {
+      tableview.hiddenColumns.push(field);
+    }
+  }
+  tableview.addHeader(datamodel.keys);
+  tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview, datamodel.latfield, datamodel.lonfield));
+  // close the dialog
+  var dialog = document.getElementById("column-select-dialog");
+  dialog.style.visibility = "hidden";
+  dialog.style.display = "none";
+}
 
 const fileSelector = document.getElementById('file-selector');
 const delimText = document.getElementById('delim-text');
@@ -166,27 +221,6 @@ function setupFieldOptions(csvString, delimiter=",") {
   lonfield.addEventListener("change", importData.bind(null, result));
   titlefield.addEventListener("change", importData.bind(null, result));
   urlfield.addEventListener("change", function(e) { setUrlField(e.target.value); });
-  
-  // populate the field checkboxes
-  var displayFieldsH3 = document.createElement("h3");
-  displayFieldsH3.innerHTML = "Display Fields";
-  fodiv.appendChild(displayFieldsH3);
-  for (let field of result.meta.fields) {
-    var input = document.createElement("input");
-    input.setAttribute("type", "checkbox");
-    var id = "checkbox-" + field;
-    input.setAttribute("id", id);
-    input.setAttribute("name", id);
-    input.setAttribute("value", field);
-    input.checked = true;
-    input.addEventListener("change", importData.bind(null, result));
-    fodiv.appendChild(input);
-    var label = document.createElement("label");
-    label.setAttribute("for", id);
-    label.innerHTML = field;
-    fodiv.appendChild(label);
-    fodiv.appendChild(document.createElement("br"));
-  }
   
   importData(result);
 }
@@ -240,17 +274,10 @@ function importData(csvResult) {
   } else {
     tableview = new TableView("data-table");
   }
-  // hide fields based on checkboxes
-  tableview.hiddenColumns = [];
-  for (let field of datamodel.keys) {
-    var cb = document.getElementById("checkbox-" + field);
-    if (!cb.checked) {
-      tableview.hiddenColumns.push(field);
-    }
-  }
   tableview.addHeader(datamodel.keys);
   tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview, datamodel.latfield, datamodel.lonfield));
   document.getElementById("table").style.display = "block";
+  document.getElementById("openColumnSelectDialog").addEventListener("click", openColumnSelectDialog);
   
   // set mapview move listener
   mapview.map.on('moveend', function(e) {

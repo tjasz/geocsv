@@ -65,6 +65,20 @@ h1 {
   margin: 0;
   cursor: pointer;
 }
+#column-select-dialog {
+  visibility: hidden;
+  display: none;
+  top: 0;
+  left: 0;
+  max-width: 300px;
+  max-height: 300px;
+  position: absolute;
+  background: white;
+  color: #336799;
+  border: 2px solid black;
+  z-index: 4000;
+  padding: 0.5em;
+}
 #filter-dialog {
   visibility: hidden;
   display: none;
