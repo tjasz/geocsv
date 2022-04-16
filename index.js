@@ -237,6 +237,7 @@ function setUrlField(fieldname) {
     previewdiv.style.display = "none";
     leafletcontainer.style.width = "100%";
   }
+  mapview.map.invalidateSize();
 }
 function importData(csvResult) {
   document.getElementById("getting-started").style.display = "none";
