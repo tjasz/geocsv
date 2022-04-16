@@ -113,6 +113,11 @@ function closeFilterDialog(e) {
   dialog.style.visibility = "hidden";
   dialog.style.display = "none";
 }
+function clearSieve() {
+  sieve.clear();
+  datamodel.filter(item => true);
+  refresh();
+}
 
 const fileSelector = document.getElementById('file-selector');
 const delimText = document.getElementById('delim-text');
@@ -245,6 +250,7 @@ function importData(csvResult) {
   }
   tableview.addHeader(datamodel.keys);
   tableview.addRows(datamodel.filteredData, focus, mapview.boundsPredicate.bind(mapview, datamodel.latfield, datamodel.lonfield));
+  document.getElementById("table").style.display = "block";
   
   // set mapview move listener
   mapview.map.on('moveend', function(e) {

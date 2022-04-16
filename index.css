@@ -38,6 +38,9 @@ h1 {
   border: none;
   overflow: hidden;
 }
+#table {
+  display: none;
+}
 #data-table {
   border-top: 2px solid black;
 }
