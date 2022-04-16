@@ -239,6 +239,7 @@ function setUrlField(fieldname) {
   }
 }
 function importData(csvResult) {
+  document.getElementById("getting-started").style.display = "none";
   // if latfield, lonfield, or titlefield change:
   // update the map markers
   if (datamodel.latfield !== latfield.value ||

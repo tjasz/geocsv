@@ -1,0 +1,64 @@
+lat,lon,"prominence (ft, clean 10ft interval)",elevation (10ft interval),name,region
+47.6316,-122.3551,400,470,Queen Anne,Central
+47.6467,-122.4078,350,390,Magnolia,Central
+47.6289,-122.3145,320,450,Capitol,Central
+47.5664,-122.3086,230,350,Beacon,South
+47.5382,-122.3773,230,510,Seattle HP,West
+47.5478,-122.2673,200,350,Graham,South
+47.6951,-122.3180,170,460,Maple Leaf,North
+47.6489,-122.3934,160,370,East Magnolia,Central
+47.5700,-122.3819,150,430,Duwamish Head,West
+47.6260,-122.2870,110,270,Washington Park,Central
+47.6899,-122.2973,110,370,Wedgwood,North
+47.6799,-122.2759,110,370,View Ridge,North
+47.6707,-122.2614,110,220,Windermere,North
+47.5582,-122.2509,110,140,Bailey Peninsula,South
+47.7275,-122.2861,100,340,Brier Crest,North
+47.6629,-122.2729,100,240,Laurelhurst,North
+47.5119,-122.3823,100,420,Arbor Heights,West
+47.5069,-122.2595,90,380,Bangor,South
+47.6979,-122.3738,80,360,Crown,North
+47.6681,-122.3536,80,360,Phinney Ridge,North
+47.5676,-122.3994,80,400,Genesee Hill,West
+47.5246,-122.3187,70,110,Trenton Hill,West
+47.5218,-122.2838,70,260,Southernmost Beacon,South
+47.6651,-122.3310,70,300,West Meridian co-prom (Keystone),North
+47.6684,-122.3259,70,300,East Meridian co-prom (Latona),North
+47.6080,-122.3211,70,370,First Hill,Central
+47.6065,-122.2942,70,350,Leschi,Central
+47.6102,-122.2907,70,350,Madrona,Central
+47.5795,-122.2869,60,180,Mt Baker Ridge,South
+47.6327,-122.3650,60,440,West Queen Anne,Central
+47.5580,-122.3846,50,370,41.5th & Edmunds/Hudson,West
+47.5762,-122.4183,50,80,Alki Point,West
+47.5009,-122.2630,50,410,Rainier View,South
+47.5183,-122.2748,50,220,Marcus Ave,South
+47.6676,-122.3095,50,270,U District HP,North
+47.6196,-122.2885,50,280,Harrison Ridge,Central
+47.6636,-122.3982,50,120,Commodore,Central
+47.5272,-122.3522,40,450,Highland Park A,West
+47.5192,-122.3473,40,450,Highland Park B,West
+47.5224,-122.3434,40,450,Highland Park C,West
+47.5533,-122.2850,40,230,West Hitt's Hill,South
+47.6574,-122.4122,40,360,Discovery Park HP,Central
+47.55654578,-122.3777819,30,400,36th & Hudson/Dawson,West
+47.52398244,-122.3133659,30,60,Boeing South Park,West
+47.55633943,-122.3459655,30,40,Kellogg Island,West
+47.54976825,-122.3028946,30,350,Beacon & Juneau,South
+47.55903645,-122.2978306,30,350,,South
+47.58865474,-122.3154688,30,320,,South
+47.56852018,-122.3161125,30,310,13th Ave S (W Beacon),South
+47.53374777,-122.2897196,30,260,Beacon & Holden,South
+47.55492389,-122.2776175,30,250,,South
+47.55657474,-122.2719955,30,250,,South
+47.5123602,-122.2730255,30,240,,South
+47.55700917,-122.268219,30,240,,South
+47.56769494,-122.2921658,30,180,,South
+47.56662357,-122.2919512,30,180,,South
+47.56424909,-122.2912216,30,180,,South
+47.56838264,-122.2750318,30,120,,South
+47.5658707,-122.2739267,30,120,,South
+47.6936456,-122.3316908,30,350,Licton Springs,North
+47.6566294,-122.27736,30,220,Laurelhurst,North
+47.61186283,-122.3418188,30,160,Moore Theater,Central
+47.6377789,-122.3036242,30,150,Montlake,Central
