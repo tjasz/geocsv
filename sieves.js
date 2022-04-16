@@ -24,6 +24,7 @@ var sieveTypeMap = {
   IsNotEmpty: IsNotEmptySieve,
   TextContains: TextContainsSieve,
   TextDoesNotContain: TextDoesNotContainSieve,
+  TextContainsAnyOfXNoneOfY : TextContainsAnyOfXNoneOfYSieve,
   TextStartsWith: TextStartsWithSieve,
   TextEndsWith: TextEndsWithSieve,
   TextIsExactly: TextIsExactlySieve,
@@ -46,6 +47,7 @@ var sieveParamsMap = {
   IsNotEmpty: [],
   TextContains: ["Substring"],
   TextDoesNotContain: ["Substring"],
+  TextContainsAnyOfXNoneOfY: ["AnyOf", "NoneOf"],
   TextStartsWith: ["Prefix"],
   TextEndsWith: ["Suffix"],
   TextIsExactly: ["String"],
@@ -98,6 +100,20 @@ function TextDoesNotContainSieve(params) {
 TextDoesNotContainSieve.prototype.predicate = function(x) {
   return !(TextContainsSieve.prototype.predicate.bind(this))(x);
 }
+
+function TextContainsAnyOfXNoneOfYSieve(params) {
+  Object.assign(this, params);
+}
+TextContainsAnyOfXNoneOfYSieve.prototype.predicate = function(x) {
+  result = false;
+  for (let ss of this.AnyOf.split(delimText.value[0])) { // TODO delim shouldn't be visible here
+    result = result || x.toUpperCase().includes(ss.toUpperCase());
+  }
+  for (let ss of this.NoneOf.split(delimText.value[0])) { // TODO delim shouldn't be visible here
+    result = result && !x.toUpperCase().includes(ss.toUpperCase());
+  }
+  return result;
+};
 
 function TextStartsWithSieve(params) {
   Object.assign(this, params);
@@ -187,38 +203,4 @@ function IsNotBetweenSieve(params) {
 }
 IsNotBetweenSieve.prototype.predicate = function(x) {
   return !(IsBetweenSieve.prototype.predicate.bind(this))(x);
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function StringSieve() {
-  this.substrs = [];
-}
-StringSieve.prototype.set = function(substrs) {
-  this.substrs = substrs;
-};
-StringSieve.prototype.predicate = function(x) {
-  if (this.substrs.length < 1) return true;
-  result = false;
-  for (let ss of this.substrs) {
-    if (ss.charAt(0) === "!")
-    {
-      result = result && !x.toUpperCase().includes(ss.substring(1).toUpperCase());
-    } else {
-      result = result || x.toUpperCase().includes(ss.toUpperCase());
-    }
-  }
-  return result;
 };
