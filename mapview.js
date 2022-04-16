@@ -39,7 +39,9 @@ MapView.prototype.flyTo = function(marker) {
   marker.openPopup();
 };
 MapView.prototype.resetZoom = function() {
-  this.map.fitBounds(this.markers.getBounds());
+  if (this.markers.getLayers().length > 0) {
+    this.map.fitBounds(this.markers.getBounds());
+  }
 };
 MapView.prototype.clear = function() {
   this.markers.clearLayers();
