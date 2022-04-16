@@ -39,6 +39,16 @@ function openFilterDialog(field, evt) {
   dialog.appendChild(fieldname);
   // add filter options
   if (datamodel.filteredData.length > 1) {
+    var sieveTypeSelectorLabel = document.createElement("label");
+    sieveTypeSelectorLabel.setAttribute("for", "sieve-type-selector-" + field);
+    sieveTypeSelectorLabel.innerHTML = "Filter Type";
+    dialog.appendChild(sieveTypeSelectorLabel);
+    var sieveTypeSelector = document.createElement("select");
+    sieveTypeSelector.setAttribute("id", "sieve-type-selector-" + field);
+    sieveTypeSelector.setAttribute("name", "sieve-type-selector-" + field);
+    setOptions(sieveTypeSelector, Object.keys(SieveType), required=true);
+    dialog.appendChild(sieveTypeSelector);
+    
     if (datamodel.types[field] === "number") {
       var inputMin = document.createElement("input");
       inputMin.setAttribute("type", "text");
@@ -90,17 +100,26 @@ function updateNumberSieve(e) {
   var newsieve = new NumberSieve();
   newsieve.setMin(parseFloat(document.getElementById("inputMin").value));
   newsieve.setMax(parseFloat(document.getElementById("inputMax").value));
-  sieve.set(e.target.parentElement.field, newsieve);
+  //sieve.set(e.target.parentElement.field, newsieve);
 }
 function updateStringSieve(e) {
   var newsieve = new StringSieve();
   newsieve.set(document.getElementById("inputStr").value.split(";"));
-  sieve.set(e.target.parentElement.field, newsieve);
+  //sieve.set(e.target.parentElement.field, newsieve);
 }
-function closeFilterDialog() {
+function closeFilterDialog(e) {
+  // update the sieve data from the dialog
+  var field = e.target.parentElement.field;
+  var sieveTypeSelector = document.getElementById("sieve-type-selector-" + field);
+  var newSieveConstructor = sieveTypeMap[sieveTypeSelector.value];
+  var newsieve = new newSieveConstructor();
+  sieve.set(field, newsieve);
+  // close the dialog
   var dialog = document.getElementById("filter-dialog");
   dialog.style.visibility = "hidden";
   dialog.style.display = "none";
+  // filter and refresh the data
+  // TODO see if filter has actually changed before doing this work
   datamodel.filter(sieve.predicate.bind(sieve));
   refresh();
 }
