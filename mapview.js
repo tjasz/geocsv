@@ -49,13 +49,15 @@ MapView.prototype.clear = function() {
 MapView.prototype.addData = function(data, predicate = function(item) { return true; }) {
   if (null === data) return;
   for (let row of filter(data, predicate)) {
-    this.markers.addLayer(row.marker);
+    if (row.marker) {
+      this.markers.addLayer(row.marker);
+    }
   }
 };
 MapView.prototype.boundsPredicate = function(latfield, lonfield, item) {
   var bounds = this.map.getBounds();
-  return item[latfield] <= bounds.getNorth() &&
-         item[latfield] >= bounds.getSouth() &&
-         item[lonfield] >= bounds.getWest() &&
-         item[lonfield] <= bounds.getEast();
+  return toDegrees(item[latfield]) <= bounds.getNorth() &&
+         toDegrees(item[latfield]) >= bounds.getSouth() &&
+         toDegrees(item[lonfield]) >= bounds.getWest() &&
+         toDegrees(item[lonfield]) <= bounds.getEast();
 };

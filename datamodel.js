@@ -63,10 +63,16 @@ DataModel.prototype.addMarker = function(item) {
     var title = item[this.titlefield];
     var popup = item[this.titlefield];
   }
-  var marker = L.marker([item[this.latfield], item[this.lonfield]], {
-    opacity: 1,
-    title: title
-  }).bindPopup(popup);
+  var lat = toDegrees(item[this.latfield]);
+  var lon = toDegrees(item[this.lonfield]);
+  if (lat !== null && lon !== null) {
+    var marker = L.marker([lat, lon], {
+      opacity: 1,
+      title: title
+    }).bindPopup(popup);
+  } else {
+    marker = null;
+  }
   // add it to the object
   item.marker = marker;
 }
