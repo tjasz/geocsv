@@ -64,6 +64,17 @@ var sieveParamsMap = {
   IsBetween: ["Min", "Max"],
   IsNotBetween: ["Min", "Max"]
 };
+function sievesEqual(a, b) {
+  if (a.constructor !== b.constructor) return false;
+  var akeys = Object.keys(a);
+  var bkeys = Object.keys(b);
+  if (akeys.length !== bkeys.length) return false;
+  if (!akeys.every(key => bkeys.includes(key))) return false;
+  for (let key of akeys) {
+    if (a[key] !== b[key]) return false;
+  }
+  return true;
+}
 
 
 function NoneSieve(params) {

@@ -100,15 +100,18 @@ function closeFilterDialog(e) {
     params[param] = input.value;
   }
   var newsieve = new newSieveConstructor(params);
-  sieve.set(field, newsieve);
+  // check for changes to the sieve
+  if (!sieve.sieves[field] || !sievesEqual(newsieve, sieve.sieves[field])) {
+    // update
+    sieve.set(field, newsieve);
+    // filter and refresh the data
+    datamodel.filter(sieve.predicate.bind(sieve));
+    refresh();
+  }
   // close the dialog
   var dialog = document.getElementById("filter-dialog");
   dialog.style.visibility = "hidden";
   dialog.style.display = "none";
-  // filter and refresh the data
-  // TODO see if filter has actually changed before doing this work
-  datamodel.filter(sieve.predicate.bind(sieve));
-  refresh();
 }
 
 const fileSelector = document.getElementById('file-selector');
