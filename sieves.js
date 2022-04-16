@@ -124,14 +124,19 @@ function GreaterThanSieve(params) {
   Object.assign(this, params);
 }
 GreaterThanSieve.prototype.predicate = function(x) {
-  return x > this.Value;
+  if (!isNaN(Number(this.Value))) {
+    return Number(x) > Number(this.Value);
+  } else {
+    return x > this.Value;
+  }
 }
 
 function GreaterThanOrEqualToSieve(params) {
   Object.assign(this, params);
 }
 GreaterThanOrEqualToSieve.prototype.predicate = function(x) {
-  return x >= this.Value;
+  return (GreaterThanSieve.prototype.predicate.bind(this))(x) ||
+         (IsEqualToSieve.prototype.predicate.bind(this))(x);
 }
 
 function LessThanSieve(params) {
@@ -152,7 +157,11 @@ function IsEqualToSieve(params) {
   Object.assign(this, params);
 }
 IsEqualToSieve.prototype.predicate = function(x) {
-  return x === this.Value;
+  if (!isNaN(Number(this.Value))) {
+    return Number(x) === Number(this.Value);
+  } else {
+    return x === this.Value;
+  }
 }
 
 function IsNotEqualToSieve(params) {
@@ -166,7 +175,11 @@ function IsBetweenSieve(params) {
   Object.assign(this, params);
 }
 IsBetweenSieve.prototype.predicate = function(x) {
-  return this.Min <= x && x <= this.Max;
+  if (!isNaN(Number(this.Min)) && !isNaN(Number(this.Max))) {
+    return Number(this.Min) <= Number(x) && Number(x) <= Number(this.Max);
+  } else {
+    return this.Min <= x && x <= this.Max;
+  }
 };
 
 function IsNotBetweenSieve(params) {
