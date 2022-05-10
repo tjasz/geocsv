@@ -53,9 +53,13 @@ MapView.prototype.addData = function(data, predicate = function(item) { return t
       this.markers.addLayer(row.marker);
       
       // set display of marker
+      var pathElem = row.marker._icon.getElementsByTagName("path")[0];
       var sizeField = datamodel.titlefield;
       var r = (row[sizeField] - datamodel.ranges[sizeField].min) / (datamodel.ranges[sizeField].max - datamodel.ranges[sizeField].min) * 80 + 20;
-      row.marker._icon.getElementsByTagName("path")[0].setAttribute("d", polygon(3, r));
+      var shapeField = datamodel.titlefield;
+      var n = (row[shapeField] - datamodel.ranges[shapeField].min) / (datamodel.ranges[shapeField].max - datamodel.ranges[shapeField].min) * 5 + 3;
+      pathElem.setAttribute("d", polygon(Math.round(n), r));
+      // TODO hsla() for fill
     }
   }
 };

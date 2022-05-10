@@ -32,14 +32,16 @@ DataModel.prototype.getRanges = function() {
   this.ranges = {};
   for (let item of this.data) {
     for (let key of this.keys) {
+      var val = item[key];
+      if (this.types[key] === "number") val = Number(val);
       if (!this.ranges[key]) {
-        this.ranges[key] = {"min": item[key], "max": item[key]};
+        this.ranges[key] = {"min": val, "max": val};
       } else {
-        if (item[key] > this.ranges[key].max) {
-          this.ranges[key].max = item[key];
+        if (val > this.ranges[key].max) {
+          this.ranges[key].max = val;
         }
-        if (item[key] < this.ranges[key].min) {
-          this.ranges[key].min = item[key];
+        if (val < this.ranges[key].min) {
+          this.ranges[key].min = val;
         }
       }
     }
@@ -102,7 +104,7 @@ DataModel.prototype.addMarker = function(item) {
   var lon = toDegrees(item[this.lonfield]);
   if (lat !== null && lon !== null) {
     var marker = L.marker([lat, lon], {
-      opacity: 1,
+      opacity: 0.9,
       title: title,
       icon: svgIcon
     }).bindPopup(popup);
