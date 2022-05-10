@@ -49,6 +49,11 @@ function setOptions(selectEl, options, required=false, findText="") {
   }
 }
 
+// linear interpolation
+function interpolate(val, minx, maxx, miny, maxy) {
+  return miny + (val-minx) / (maxx-minx) * (maxy-miny);
+}
+
 // geometry
 function dsin(a) {
   return Math.sin(a * Math.PI / 180.0);

@@ -221,6 +221,26 @@ function setupFieldOptions(csvString, delimiter=",") {
   lonfield.addEventListener("change", importData.bind(null, result));
   titlefield.addEventListener("change", importData.bind(null, result));
   urlfield.addEventListener("change", function(e) { setUrlField(e.target.value); });
+  // populate the display field dropdowns with options
+  var sizefield = document.getElementById("sizefield");
+  var shapefield = document.getElementById("shapefield");
+  var huefield = document.getElementById("huefield");
+  var saturfield = document.getElementById("saturfield");
+  var lightfield = document.getElementById("lightfield");
+  var alphafield = document.getElementById("alphafield");
+  var isnumeric = function(key) { return datamodel.types[key] === "number"; };
+  setOptions(sizefield, filter(result.meta.fields, isnumeric), required=false);
+  setOptions(shapefield, filter(result.meta.fields, isnumeric), required=false);
+  setOptions(huefield, filter(result.meta.fields, isnumeric), required=false);
+  setOptions(saturfield, filter(result.meta.fields, isnumeric), required=false);
+  setOptions(lightfield, filter(result.meta.fields, isnumeric), required=false);
+  setOptions(alphafield, filter(result.meta.fields, isnumeric), required=false);
+  sizefield.addEventListener("change", importData.bind(null, result));
+  shapefield.addEventListener("change", importData.bind(null, result));
+  huefield.addEventListener("change", importData.bind(null, result));
+  saturfield.addEventListener("change", importData.bind(null, result));
+  lightfield.addEventListener("change", importData.bind(null, result));
+  alphafield.addEventListener("change", importData.bind(null, result));
   
   importData(result);
 }
@@ -267,6 +287,14 @@ function importData(csvResult) {
   } else {
     mapview = new MapView();
   }
+  // set map display settings
+  mapview.sizefield = sizefield.value;
+  mapview.shapefield = shapefield.value;
+  mapview.huefield = huefield.value;
+  mapview.saturfield = saturfield.value;
+  mapview.lightfield = lightfield.value;
+  mapview.alphafield = alphafield.value;
+  // add data
   mapview.addData(datamodel.filteredData);
   mapview.resetZoom();
   
