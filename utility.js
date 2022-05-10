@@ -48,3 +48,30 @@ function setOptions(selectEl, options, required=false, findText="") {
     }
   }
 }
+
+// geometry
+function dsin(a) {
+  return Math.sin(a * Math.PI / 180.0);
+}
+function dcos(a) {
+  return Math.cos(a * Math.PI / 180.0);
+}
+
+function ar(a, r) {
+  return [r*dsin(a), r*dcos(a)]
+}
+
+// create the SVG path commands for an n-gon of radius r
+function polygon(n, r) {
+  points = []
+  da = 360.0/n;
+  for (a = da/2; a < 360.0; a += da) {
+    points.push(ar(a, r));
+  }
+  str = "M" + points[0][0] + " " + points[0][1];
+  for (i = 1; i < points.length; i++) {
+    str += " L" + points[i][0] + " " + points[i][1];
+  }
+  str += "Z";
+  return str;
+}

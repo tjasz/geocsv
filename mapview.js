@@ -51,6 +51,9 @@ MapView.prototype.addData = function(data, predicate = function(item) { return t
   for (let row of filter(data, predicate)) {
     if (row.marker) {
       this.markers.addLayer(row.marker);
+      
+      // set display of marker
+      row.marker._icon.getElementsByTagName("path")[0].setAttribute("d", polygon(3, row[datamodel.titlefield]));
     }
   }
 };

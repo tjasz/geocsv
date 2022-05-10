@@ -50,6 +50,22 @@ DataModel.prototype.filter = function(predicate) {
     }
   }
 };
+const svgIcon = L.divIcon({
+  html: `
+<svg
+  width="40"
+  height="40"
+  viewBox="-100 -100 200 200"
+  version="1.1"
+  preserveAspectRatio="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path d="M0 0 L50 100 L100 0 Z" fill="#7A8BE7"></path>
+</svg>`,
+  className: "svg-icon",
+  iconSize: [40, 40],
+  iconAnchor: [20,20],
+});
 // associate a Leaflet marker with a data row/object
 DataModel.prototype.addMarker = function(item) {
   if (!this.latfield || !this.keys.includes(this.latfield)) {
@@ -68,7 +84,8 @@ DataModel.prototype.addMarker = function(item) {
   if (lat !== null && lon !== null) {
     var marker = L.marker([lat, lon], {
       opacity: 1,
-      title: title
+      title: title,
+      icon: svgIcon
     }).bindPopup(popup);
   } else {
     marker = null;
