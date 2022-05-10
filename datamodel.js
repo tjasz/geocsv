@@ -4,6 +4,7 @@ function DataModel(data) {
   this.filteredData = data;
   this.keys = Object.keys(data[0]);
   this.getFieldTypes();
+  this.getRanges();
   // field options
   this.latfield = null;
   this.lonfield = null;
@@ -21,6 +22,24 @@ DataModel.prototype.getFieldTypes = function() {
       } else {
         if (this.types[key] != "number" || isNaN(Number(item[key]))) {
           this.types[key] = "string";
+        }
+      }
+    }
+  }
+};
+DataModel.prototype.getRanges = function() {
+  // get the max and min for each column
+  this.ranges = {};
+  for (let item of this.data) {
+    for (let key of this.keys) {
+      if (!this.ranges[key]) {
+        this.ranges[key] = {"min": item[key], "max": item[key]};
+      } else {
+        if (item[key] > this.ranges[key].max) {
+          this.ranges[key].max = item[key];
+        }
+        if (item[key] < this.ranges[key].min) {
+          this.ranges[key].min = item[key];
         }
       }
     }
